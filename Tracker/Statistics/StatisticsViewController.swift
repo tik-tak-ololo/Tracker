@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  StatisticsViewController.swift
 //  Tracker
 //
 //  Created by Сергей Хмелёв on 24.04.2026.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class StatisticsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -17,7 +17,7 @@ class ViewController: UIViewController {
     }
     
     private func setupView() {
-        view.backgroundColor = .black
+        view.backgroundColor = .ypWhiteIOS
     }
     
     private func setupSubviews() {
@@ -28,6 +28,4 @@ class ViewController: UIViewController {
 
     }
 
-
 }
-
