@@ -17,7 +17,7 @@ class StatisticsViewController: UIViewController {
     }
     
     private func setupView() {
-        view.backgroundColor = .ypWhiteIOS
+        view.backgroundColor = .backgroundColorIOS
     }
     
     private func setupSubviews() {
