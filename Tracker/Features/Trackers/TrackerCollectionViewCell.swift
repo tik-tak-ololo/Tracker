@@ -23,6 +23,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
+        setupConstraints()
     }
 
     required init?(coder: NSCoder) {
@@ -81,6 +82,11 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         completeButton.clipsToBounds = true
         completeButton.addTarget(self, action: #selector(didTapCompleteButton), for: .touchUpInside)
 
+
+    }
+    
+    private func setupConstraints() {
+        
         NSLayoutConstraint.activate([
             cardView.topAnchor.constraint(equalTo: contentView.topAnchor),
             cardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -102,9 +108,9 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
             completeButton.topAnchor.constraint(equalTo: cardView.bottomAnchor, constant: 8),
             completeButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
             completeButton.widthAnchor.constraint(equalToConstant: 34),
-            completeButton.heightAnchor.constraint(equalToConstant: 34),
-            completeButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+            completeButton.heightAnchor.constraint(equalToConstant: 34)
         ])
+        
     }
 
     @objc private func didTapCompleteButton() {

@@ -92,7 +92,7 @@ final class TrackersViewController: UIViewController {
 
     private let searchContainer: UIView = {
         let view = UIView()
-        view.backgroundColor = .backgroundSearchFieldIOS
+        view.backgroundColor = .searchFieldBackgroundColorIOS
         view.layer.cornerRadius = 10
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
