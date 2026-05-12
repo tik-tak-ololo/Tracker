@@ -387,15 +387,21 @@ final class TrackersViewController: UIViewController {
     // MARK: - Actions
 
     @objc private func didTapAddTrackerButton() {
-        let tracker = Tracker(
-            id: UUID(),
-            name: "Новый трекер",
-            color: .systemBlue,
-            emoji: "🔥",
-            schedule: [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
-        )
-
-        addTracker(tracker, toCategoryWithTitle: "Домашний уют")
+//        let tracker = Tracker(
+//            id: UUID(),
+//            name: "Новый трекер",
+//            color: .systemBlue,
+//            emoji: "🔥",
+//            schedule: [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
+//        )
+//
+//        addTracker(tracker, toCategoryWithTitle: "Домашний уют")
+        
+        let newHabitVC = NewHabitViewController()
+        newHabitVC.delegate = self
+        let navigationController = UINavigationController(rootViewController: newHabitVC)
+        navigationController.modalPresentationStyle = .pageSheet
+        present(navigationController, animated: true)
     }
 
     @objc private func didChangeSearchText(_ sender: UISearchTextField) {
@@ -602,5 +608,21 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
         referenceSizeForHeaderInSection section: Int
     ) -> CGSize {
         CGSize(width: collectionView.bounds.width, height: 18)
+    }
+}
+
+extension TrackersViewController: NewHabitViewControllerDelegate {
+
+    func newHabitViewControllerDidCancel(_ controller: NewHabitViewController) {
+        dismiss(animated: true)
+    }
+
+    func newHabitViewController(
+        _ controller: NewHabitViewController,
+        didCreateTracker tracker: Tracker,
+        categoryTitle: String
+    ) {
+        addTracker(tracker, toCategoryWithTitle: categoryTitle)
+        reloadVisibleTrackers()
     }
 }
