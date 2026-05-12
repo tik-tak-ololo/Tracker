@@ -23,7 +23,6 @@ final class TrackersViewController: UIViewController {
 
     private var selectedDate = Date() {
         didSet {
-            dateLabel.text = dateFormatter.string(from: selectedDate)
             reloadVisibleTrackers()
         }
     }
@@ -44,28 +43,38 @@ final class TrackersViewController: UIViewController {
         return button
     }()
 
-    private let dateLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .textColorIOS
-        label.backgroundColor = .datePickerBackgroundIOS
-        label.layer.cornerRadius = 8
-        label.clipsToBounds = true
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
+//    private let dateLabel: UILabel = {
+//        let label = UILabel()
+//        label.textColor = .textColorIOS
+//        label.backgroundColor = .datePickerBackgroundIOS
+//        label.layer.cornerRadius = 8
+//        label.clipsToBounds = true
+//        label.translatesAutoresizingMaskIntoConstraints = false
+//        return label
+//    }()
+//    
+//    private let dateAttributes: [NSAttributedString.Key: Any] = {
+//
+//        let paragraphStyle = NSMutableParagraphStyle()
+//        paragraphStyle.minimumLineHeight = 22
+//        paragraphStyle.maximumLineHeight = 22
+//        paragraphStyle.alignment = .center
+//
+//        return [
+//            .font: UIFont.systemFont(ofSize: 17, weight: .regular),
+//            .paragraphStyle: paragraphStyle
+//        ]
+//
+//    }()
     
-    private let dateAttributes: [NSAttributedString.Key: Any] = {
-
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.minimumLineHeight = 22
-        paragraphStyle.maximumLineHeight = 22
-        paragraphStyle.alignment = .center
-
-        return [
-            .font: UIFont.systemFont(ofSize: 17, weight: .regular),
-            .paragraphStyle: paragraphStyle
-        ]
-
+    private let datePicker: UIDatePicker = {
+        let picker = UIDatePicker()
+        picker.datePickerMode = .date
+        picker.preferredDatePickerStyle = .compact
+        picker.locale = Locale(identifier: "ru_RU")
+        picker.calendar = .current
+        picker.translatesAutoresizingMaskIntoConstraints = false
+        return picker
     }()
 
     private let titleLabel: UILabel = {
@@ -177,6 +186,7 @@ final class TrackersViewController: UIViewController {
         super.viewDidLoad()
 
         setupView()
+        setupNavigationBar()
         setupSubviews()
         setupContent()
         setupConstraints()
@@ -191,10 +201,34 @@ final class TrackersViewController: UIViewController {
     private func setupView() {
         view.backgroundColor = .backgroundColorIOS
     }
+    
+    private func setupNavigationBar() {
+        let addButton = UIButton(type: .system)
+        addButton.setImage(UIImage(resource: .addTrackerButton), for: .normal)
+        addButton.tintColor = .label
+        addButton.frame = CGRect(x: 0, y: 0, width: 42, height: 42)
 
+        addButton.addTarget(
+            self,
+            action: #selector(didTapAddTrackerButton),
+            for: .touchUpInside
+        )
+
+        let leftItem = UIBarButtonItem(customView: addButton)
+        let rightItem = UIBarButtonItem(customView: datePicker)
+
+        if #available(iOS 26.0, *) {
+            leftItem.hidesSharedBackground = true
+            rightItem.hidesSharedBackground = true
+        }
+
+        navigationItem.leftBarButtonItem = leftItem
+        navigationItem.rightBarButtonItem = rightItem
+    }
+    
     private func setupSubviews() {
-        view.addSubview(addTrackerButton)
-        view.addSubview(dateLabel)
+//        view.addSubview(addTrackerButton)
+//        view.addSubview(dateLabel)
         view.addSubview(titleLabel)
         view.addSubview(searchContainer)
         searchContainer.addSubview(searchIcon)
@@ -207,12 +241,12 @@ final class TrackersViewController: UIViewController {
     
     private func setupContent() {
         
-        // dateLabel
-        let text = dateFormatter.string(from: selectedDate)
-        dateLabel.attributedText = NSAttributedString(
-            string: text,
-            attributes: dateAttributes
-        )
+//        // dateLabel
+//        let text = dateFormatter.string(from: selectedDate)
+//        dateLabel.attributedText = NSAttributedString(
+//            string: text,
+//            attributes: dateAttributes
+//        )
         
         // titleLabel
         titleLabel.attributedText = NSAttributedString(
@@ -234,21 +268,21 @@ final class TrackersViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             
-            // ➕ Кнопка "+"
-            addTrackerButton.leadingAnchor.constraint(equalTo: safe.leadingAnchor, constant: 6),
-            addTrackerButton.topAnchor.constraint(equalTo: safe.topAnchor, constant: 1),
-            addTrackerButton.widthAnchor.constraint(equalToConstant: 42),
-            addTrackerButton.heightAnchor.constraint(equalToConstant: 42),
+//            // ➕ Кнопка "+"
+//            addTrackerButton.leadingAnchor.constraint(equalTo: safe.leadingAnchor, constant: 6),
+//            addTrackerButton.topAnchor.constraint(equalTo: safe.topAnchor, constant: 1),
+//            addTrackerButton.widthAnchor.constraint(equalToConstant: 42),
+//            addTrackerButton.heightAnchor.constraint(equalToConstant: 42),
 
-            // 📅 Дата
-            dateLabel.trailingAnchor.constraint(equalTo: safe.trailingAnchor, constant: -16),
-            dateLabel.centerYAnchor.constraint(equalTo: addTrackerButton.centerYAnchor),
-            dateLabel.widthAnchor.constraint(equalToConstant: 77),
-            dateLabel.heightAnchor.constraint(equalToConstant: 34),
+//            // 📅 Дата
+//            dateLabel.trailingAnchor.constraint(equalTo: safe.trailingAnchor, constant: -16),
+//            dateLabel.centerYAnchor.constraint(equalTo: addTrackerButton.centerYAnchor),
+//            dateLabel.widthAnchor.constraint(equalToConstant: 77),
+//            dateLabel.heightAnchor.constraint(equalToConstant: 34),
 
             // 🏷 Заголовок
             titleLabel.leadingAnchor.constraint(equalTo: safe.leadingAnchor, constant: 16),
-            titleLabel.topAnchor.constraint(equalTo: addTrackerButton.bottomAnchor, constant: 1),
+            titleLabel.topAnchor.constraint(equalTo: safe.topAnchor, constant: 1),
             titleLabel.widthAnchor.constraint(equalToConstant: 254),
             titleLabel.heightAnchor.constraint(equalToConstant: 41),
 
@@ -317,6 +351,12 @@ final class TrackersViewController: UIViewController {
             action: #selector(didChangeSearchText),
             for: .editingChanged
         )
+        
+        datePicker.addTarget(
+            self,
+            action: #selector(didChangeDate),
+            for: .valueChanged
+        )
     }
 
     private func setupInitialData() {
@@ -360,6 +400,10 @@ final class TrackersViewController: UIViewController {
 
     @objc private func didChangeSearchText(_ sender: UISearchTextField) {
         searchText = sender.text ?? ""
+    }
+    
+    @objc private func didChangeDate(_ sender: UIDatePicker) {
+        selectedDate = sender.date
     }
 
     // MARK: - Logic

@@ -17,9 +17,13 @@ final class TabBarController: UITabBarController {
     private func setupTabs() {
 
         let trackersViewController = TrackersViewController()
-        trackersViewController.tabBarItem = UITabBarItem(
+        let trackersNavigationController = UINavigationController(
+            rootViewController: trackersViewController
+        )
+
+        trackersNavigationController.tabBarItem = UITabBarItem(
             title: "Трекеры",
-            image: UIImage(resource: .trackersTabBar),
+            image: UIImage(systemName: "record.circle.fill"),
             selectedImage: nil
         )
         
@@ -31,7 +35,7 @@ final class TabBarController: UITabBarController {
             selectedImage: nil
         )
 
-        self.viewControllers = [trackersViewController, statisticsViewController]
+        self.viewControllers = [trackersNavigationController, statisticsViewController]
     }
 
 }
