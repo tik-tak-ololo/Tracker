@@ -16,7 +16,7 @@ final class ScheduleCell: UITableViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 17)
-        label.textColor = UIColor(named: "BlackIOS") ?? .black
+        label.textColor = UIColor(resource: .textColorIOS)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -31,7 +31,7 @@ final class ScheduleCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        backgroundColor = UIColor(named: "BackgroundIOS") ?? .systemGray6
+        backgroundColor = UIColor(resource: .backgroundDayIOS)
         selectionStyle = .none
 
         contentView.addSubview(titleLabel)

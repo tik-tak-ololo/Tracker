@@ -42,30 +42,6 @@ final class TrackersViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-
-//    private let dateLabel: UILabel = {
-//        let label = UILabel()
-//        label.textColor = .textColorIOS
-//        label.backgroundColor = .datePickerBackgroundIOS
-//        label.layer.cornerRadius = 8
-//        label.clipsToBounds = true
-//        label.translatesAutoresizingMaskIntoConstraints = false
-//        return label
-//    }()
-//    
-//    private let dateAttributes: [NSAttributedString.Key: Any] = {
-//
-//        let paragraphStyle = NSMutableParagraphStyle()
-//        paragraphStyle.minimumLineHeight = 22
-//        paragraphStyle.maximumLineHeight = 22
-//        paragraphStyle.alignment = .center
-//
-//        return [
-//            .font: UIFont.systemFont(ofSize: 17, weight: .regular),
-//            .paragraphStyle: paragraphStyle
-//        ]
-//
-//    }()
     
     private let datePicker: UIDatePicker = {
         let picker = UIDatePicker()
@@ -173,6 +149,17 @@ final class TrackersViewController: UIViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
     }()
+    
+    private let filtersButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Фильтры", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .regular)
+        button.backgroundColor = UIColor(red: 55/255, green: 114/255, blue: 231/255, alpha: 1)
+        button.layer.cornerRadius = 16
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
 
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -203,18 +190,8 @@ final class TrackersViewController: UIViewController {
     }
     
     private func setupNavigationBar() {
-        let addButton = UIButton(type: .system)
-        addButton.setImage(UIImage(resource: .addTrackerButton), for: .normal)
-        addButton.tintColor = .label
-        addButton.frame = CGRect(x: 0, y: 0, width: 42, height: 42)
 
-        addButton.addTarget(
-            self,
-            action: #selector(didTapAddTrackerButton),
-            for: .touchUpInside
-        )
-
-        let leftItem = UIBarButtonItem(customView: addButton)
+        let leftItem = makeAddBarButtonItem()
         let rightItem = UIBarButtonItem(customView: datePicker)
 
         if #available(iOS 26.0, *) {
@@ -226,27 +203,39 @@ final class TrackersViewController: UIViewController {
         navigationItem.rightBarButtonItem = rightItem
     }
     
+    private func makeAddBarButtonItem() -> UIBarButtonItem {
+
+        let container = UIView()
+        container.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(addTrackerButton)
+
+        NSLayoutConstraint.activate([
+            container.widthAnchor.constraint(equalToConstant: 44),
+            container.heightAnchor.constraint(equalToConstant: 44),
+
+            // ➕ Кнопка "+"
+            addTrackerButton.leadingAnchor.constraint(equalTo: container.leadingAnchor, constant: -16),
+            addTrackerButton.centerYAnchor.constraint(equalTo: container.centerYAnchor),
+            addTrackerButton.widthAnchor.constraint(equalToConstant: 44),
+            addTrackerButton.heightAnchor.constraint(equalToConstant: 44)
+        ])
+
+        return UIBarButtonItem(customView: container)
+    }
+    
     private func setupSubviews() {
-//        view.addSubview(addTrackerButton)
-//        view.addSubview(dateLabel)
         view.addSubview(titleLabel)
         view.addSubview(searchContainer)
         searchContainer.addSubview(searchIcon)
         searchContainer.addSubview(searchTextField)
         view.addSubview(collectionView)
+        view.addSubview(filtersButton)
         view.addSubview(placeholderView)
         placeholderView.addSubview(placeholderImageView)
         placeholderView.addSubview(placeholderLabel)
     }
     
     private func setupContent() {
-        
-//        // dateLabel
-//        let text = dateFormatter.string(from: selectedDate)
-//        dateLabel.attributedText = NSAttributedString(
-//            string: text,
-//            attributes: dateAttributes
-//        )
         
         // titleLabel
         titleLabel.attributedText = NSAttributedString(
@@ -259,7 +248,6 @@ final class TrackersViewController: UIViewController {
             string: "Поиск",
             attributes: searchTextFieldAttributes
         )
-        
     }
 
     private func setupConstraints() {
@@ -267,18 +255,6 @@ final class TrackersViewController: UIViewController {
         let safe = view.safeAreaLayoutGuide
         
         NSLayoutConstraint.activate([
-            
-//            // ➕ Кнопка "+"
-//            addTrackerButton.leadingAnchor.constraint(equalTo: safe.leadingAnchor, constant: 6),
-//            addTrackerButton.topAnchor.constraint(equalTo: safe.topAnchor, constant: 1),
-//            addTrackerButton.widthAnchor.constraint(equalToConstant: 42),
-//            addTrackerButton.heightAnchor.constraint(equalToConstant: 42),
-
-//            // 📅 Дата
-//            dateLabel.trailingAnchor.constraint(equalTo: safe.trailingAnchor, constant: -16),
-//            dateLabel.centerYAnchor.constraint(equalTo: addTrackerButton.centerYAnchor),
-//            dateLabel.widthAnchor.constraint(equalToConstant: 77),
-//            dateLabel.heightAnchor.constraint(equalToConstant: 34),
 
             // 🏷 Заголовок
             titleLabel.leadingAnchor.constraint(equalTo: safe.leadingAnchor, constant: 16),
@@ -306,6 +282,11 @@ final class TrackersViewController: UIViewController {
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            filtersButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            filtersButton.bottomAnchor.constraint(equalTo: safe.bottomAnchor, constant: -16),
+            filtersButton.widthAnchor.constraint(equalToConstant: 114),
+            filtersButton.heightAnchor.constraint(equalToConstant: 50),
 
             // ⭐ Empty state (центр, но чуть ниже)
             placeholderView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -387,16 +368,6 @@ final class TrackersViewController: UIViewController {
     // MARK: - Actions
 
     @objc private func didTapAddTrackerButton() {
-//        let tracker = Tracker(
-//            id: UUID(),
-//            name: "Новый трекер",
-//            color: .systemBlue,
-//            emoji: "🔥",
-//            schedule: [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
-//        )
-//
-//        addTracker(tracker, toCategoryWithTitle: "Домашний уют")
-        
         let newHabitVC = NewHabitViewController()
         newHabitVC.delegate = self
         let navigationController = UINavigationController(rootViewController: newHabitVC)

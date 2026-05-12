@@ -7,15 +7,6 @@
 
 import UIKit
 
-protocol NewHabitViewControllerDelegate: AnyObject {
-    func newHabitViewControllerDidCancel(_ controller: NewHabitViewController)
-    func newHabitViewController(
-        _ controller: NewHabitViewController,
-        didCreateTracker tracker: Tracker,
-        categoryTitle: String
-    )
-}
-
 final class NewHabitViewController: UIViewController {
 
     weak var delegate: NewHabitViewControllerDelegate?
@@ -26,7 +17,7 @@ final class NewHabitViewController: UIViewController {
         let textField = UITextField()
         textField.placeholder = "Введите название трекера"
         textField.font = .systemFont(ofSize: 17)
-        textField.backgroundColor = UIColor(named: "BackgroundIOS") ?? .systemGray6
+        textField.backgroundColor = .backgroundDayIOS
         textField.layer.cornerRadius = 16
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 1))
         textField.leftViewMode = .always
@@ -55,7 +46,7 @@ final class NewHabitViewController: UIViewController {
         button.setTitle("Создать", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        button.backgroundColor = .systemGray3
+        button.backgroundColor = .grayIOS
         button.layer.cornerRadius = 16
         button.isEnabled = false
         button.addTarget(self, action: #selector(createButtonTapped), for: .touchUpInside)
@@ -68,7 +59,7 @@ final class NewHabitViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.backgroundColor = .white
+        view.backgroundColor = .backgroundColorIOS
         title = "Новая привычка"
 
         setupTextField()
@@ -95,10 +86,12 @@ final class NewHabitViewController: UIViewController {
         optionsTableView.clipsToBounds = true
         optionsTableView.isScrollEnabled = false
         optionsTableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        optionsTableView.separatorStyle = .none
         optionsTableView.separatorColor = .systemGray4
         optionsTableView.dataSource = self
         optionsTableView.delegate = self
-        optionsTableView.register(UITableViewCell.self, forCellReuseIdentifier: "OptionCell")
+        //optionsTableView.register(UITableViewCell.self, forCellReuseIdentifier: "OptionCell")
+        optionsTableView.register(TrackerOptionCell.self, forCellReuseIdentifier: TrackerOptionCell.reuseIdentifier)
         optionsTableView.translatesAutoresizingMaskIntoConstraints = false
 
         view.addSubview(optionsTableView)
@@ -138,8 +131,8 @@ final class NewHabitViewController: UIViewController {
 
         createButton.isEnabled = hasTitle
         createButton.backgroundColor = hasTitle
-            ? (UIColor(named: "BlackIOS") ?? .black)
-            : .systemGray3
+            ? .blackDayIOS
+            : .grayIOS
     }
 
     @objc private func cancelButtonTapped() {
@@ -180,18 +173,24 @@ extension NewHabitViewController: UITableViewDataSource {
         _ tableView: UITableView,
         cellForRowAt indexPath: IndexPath
     ) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "OptionCell", for: indexPath)
-
-        cell.textLabel?.text = options[indexPath.row]
-        cell.textLabel?.font = .systemFont(ofSize: 17)
-        cell.textLabel?.textColor = UIColor(named: "BlackIOS") ?? .black
-        cell.backgroundColor = UIColor(named: "BackgroundIOS") ?? .systemGray6
-        cell.selectionStyle = .none
-        cell.accessoryType = .disclosureIndicator
-
-        if indexPath.row == 1, !selectedSchedule.isEmpty {
-            cell.detailTextLabel?.text = "\(selectedSchedule.count)"
+        //let cell = tableView.dequeueReusableCell(withIdentifier: "OptionCell", for: indexPath)
+        
+        guard let cell = tableView.dequeueReusableCell(
+            withIdentifier: TrackerOptionCell.reuseIdentifier,
+            for: indexPath
+        ) as? TrackerOptionCell else {
+            return UITableViewCell()
         }
+        
+        cell.textLabel?.font = .systemFont(ofSize: 17)
+        cell.textLabel?.textColor = .textColorIOS
+        cell.backgroundColor = .backgroundDayIOS
+        cell.selectionStyle = .none
+        
+        cell.configure(
+            title: options[indexPath.row],
+            showsSeparator: indexPath.row != options.count - 1
+        )
 
         return cell
     }
