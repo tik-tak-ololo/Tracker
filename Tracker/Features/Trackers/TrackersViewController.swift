@@ -409,12 +409,12 @@ final class TrackersViewController: UIViewController {
     // MARK: - Logic
 
     private func reloadVisibleTrackers() {
-        let selectedWeekday = weekday(from: selectedDate)
+        let selectedDayOfWeek = dayOfWeek(from: selectedDate)
 
         visibleCategories = categories
             .map { category in
                 let trackers = category.trackers.filter { tracker in
-                    let matchesDate = tracker.schedule.contains(selectedWeekday)
+                    let matchesDate = tracker.schedule.contains(selectedDayOfWeek)
 
                     let matchesSearch = searchText.isEmpty ||
                     tracker.name.localizedCaseInsensitiveContains(searchText)
@@ -492,10 +492,10 @@ final class TrackersViewController: UIViewController {
         }
     }
 
-    private func weekday(from date: Date) -> Weekday {
-        let weekdayNumber = Calendar.current.component(.weekday, from: date)
+    private func dayOfWeek(from date: Date) -> DayOfWeek {
+        let dayOfWeekNumber = Calendar.current.component(.weekday, from: date)
 
-        switch weekdayNumber {
+        switch dayOfWeekNumber {
         case 1:
             return .sunday
         case 2:
