@@ -166,6 +166,12 @@ final class TrackersViewController: UIViewController {
         formatter.dateFormat = "dd.MM.yy"
         return formatter
     }()
+    private var isSelectedDateInFuture: Bool {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let selectedDay = calendar.startOfDay(for: selectedDate)
+        return selectedDay > today
+    }
 
     // MARK: - Lifecycle
 
@@ -430,6 +436,11 @@ final class TrackersViewController: UIViewController {
     }
 
     private func toggleTrackerCompletion(id: UUID) {
+        
+        guard !isSelectedDateInFuture else {
+            return
+        }
+        
         if isTrackerCompleted(id: id, on: selectedDate) {
             completedTrackers.removeAll {
                 $0.trackerId == id &&
