@@ -27,6 +27,13 @@ final class ScheduleCell: UITableViewCell {
         switchControl.translatesAutoresizingMaskIntoConstraints = false
         return switchControl
     }()
+    
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .grayIOS
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -36,13 +43,19 @@ final class ScheduleCell: UITableViewCell {
 
         contentView.addSubview(titleLabel)
         contentView.addSubview(daySwitch)
+        contentView.addSubview(separatorView)
 
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
 
             daySwitch.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            daySwitch.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
+            daySwitch.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            
+            separatorView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            separatorView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            separatorView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            separatorView.heightAnchor.constraint(equalToConstant: 0.5)
         ])
     }
 
@@ -51,9 +64,10 @@ final class ScheduleCell: UITableViewCell {
         return nil
     }
 
-    func configure(title: String, isOn: Bool) {
+    func configure(title: String, isOn: Bool, showsSeparator: Bool) {
         titleLabel.text = title
         daySwitch.isOn = isOn
+        separatorView.isHidden = !showsSeparator
     }
 
     @objc private func switchChanged() {

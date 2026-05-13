@@ -19,6 +19,22 @@ final class TrackerOptionCell: UITableViewCell {
         return label
     }()
 
+    private let subtitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 17)
+        label.textColor = UIColor(resource: .grayIOS)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private let labelsStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.spacing = 2
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        return stackView
+    }()
+
     private let chevronImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(resource: .chevronImageIOS)
@@ -35,10 +51,8 @@ final class TrackerOptionCell: UITableViewCell {
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-
-        backgroundColor = UIColor(resource: .backgroundColorIOS)
+        backgroundColor = UIColor(resource: .backgroundDayIOS)
         selectionStyle = .none
-
         setupLayout()
     }
 
@@ -48,19 +62,20 @@ final class TrackerOptionCell: UITableViewCell {
     }
 
     private func setupLayout() {
+        labelsStackView.addArrangedSubview(titleLabel)
+        labelsStackView.addArrangedSubview(subtitleLabel)
 
-        contentView.addSubview(titleLabel)
+        contentView.addSubview(labelsStackView)
         contentView.addSubview(chevronImageView)
         contentView.addSubview(separatorView)
 
         NSLayoutConstraint.activate([
-
             chevronImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             chevronImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
 
-            titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: chevronImageView.leadingAnchor, constant: -8),
+            labelsStackView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            labelsStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            labelsStackView.trailingAnchor.constraint(lessThanOrEqualTo: chevronImageView.leadingAnchor, constant: -8),
 
             separatorView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             separatorView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
@@ -71,10 +86,12 @@ final class TrackerOptionCell: UITableViewCell {
 
     func configure(
         title: String,
+        subtitle: String?,
         showsSeparator: Bool
     ) {
-
         titleLabel.text = title
+        subtitleLabel.text = subtitle
+        subtitleLabel.isHidden = subtitle == nil || subtitle?.isEmpty == true
         separatorView.isHidden = !showsSeparator
     }
 }

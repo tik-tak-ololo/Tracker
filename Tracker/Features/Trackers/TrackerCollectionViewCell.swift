@@ -15,6 +15,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     private var onToggle: ((UUID) -> Void)?
 
     private let cardView = UIView()
+    private let emojiContainerView = UIView()
     private let emojiLabel = UILabel()
     private let titleLabel = UILabel()
     private let daysLabel = UILabel()
@@ -40,17 +41,19 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         self.onToggle = onToggle
 
         cardView.backgroundColor = tracker.color
+        cardView.layer.borderWidth = 1
+        cardView.layer.borderColor = UIColor(resource: .cardBorderColorIOS).cgColor
         emojiLabel.text = tracker.emoji
         titleLabel.text = tracker.name
         daysLabel.text = "\(completedDays) дней"
 
         let image = isCompleted
-            ? UIImage(systemName: "checkmark")
-            : UIImage(systemName: "plus")
-
+            ? UIImage(resource: .compleatButtonCheckmarkIOS)
+            : UIImage(resource: .compleatButtonPlusIOS)
+        
         completeButton.setImage(image, for: .normal)
-        completeButton.backgroundColor = tracker.color
-        completeButton.alpha = isCompleted ? 0.3 : 1
+        completeButton.backgroundColor = .whiteIOS
+        completeButton.tintColor = tracker.color
     }
 
     private func setupUI() {
@@ -58,17 +61,25 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         contentView.addSubview(daysLabel)
         contentView.addSubview(completeButton)
 
-        cardView.addSubview(emojiLabel)
+        cardView.addSubview(emojiContainerView)
         cardView.addSubview(titleLabel)
+        emojiContainerView.addSubview(emojiLabel)
 
-        [cardView, emojiLabel, titleLabel, daysLabel, completeButton].forEach {
+        [cardView, emojiLabel, titleLabel, emojiContainerView, daysLabel, completeButton].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
         }
 
         cardView.layer.cornerRadius = 16
         cardView.clipsToBounds = true
+        
+        // emojiContainerView
+        emojiContainerView.backgroundColor = .emojiContainerViewColorIOS
+        emojiContainerView.layer.cornerRadius = 12
+        emojiContainerView.clipsToBounds = true
 
+        // emojiLabel
         emojiLabel.font = .systemFont(ofSize: 16)
+        emojiLabel.textAlignment = .center
 
         titleLabel.font = .systemFont(ofSize: 12, weight: .medium)
         titleLabel.textColor = .white
@@ -77,11 +88,9 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         daysLabel.font = .systemFont(ofSize: 12, weight: .medium)
         daysLabel.textColor = .label
 
-        completeButton.tintColor = .white
         completeButton.layer.cornerRadius = 17
         completeButton.clipsToBounds = true
         completeButton.addTarget(self, action: #selector(didTapCompleteButton), for: .touchUpInside)
-
 
     }
     
@@ -92,9 +101,27 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
             cardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             cardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             cardView.heightAnchor.constraint(equalToConstant: 90),
+            
+            // emojiContainerView
+            emojiContainerView.topAnchor.constraint(
+                equalTo: cardView.topAnchor,
+                constant: 12
+            ),
+            emojiContainerView.leadingAnchor.constraint(
+                equalTo: cardView.leadingAnchor,
+                constant: 12
+            ),
 
-            emojiLabel.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 12),
-            emojiLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
+            emojiContainerView.widthAnchor.constraint(equalToConstant: 24),
+            emojiContainerView.heightAnchor.constraint(equalToConstant: 24),
+            
+            // emojiLabel
+            emojiLabel.centerXAnchor.constraint(
+                equalTo: emojiContainerView.centerXAnchor
+            ),
+            emojiLabel.centerYAnchor.constraint(
+                equalTo: emojiContainerView.centerYAnchor
+            ),
 
             titleLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
             titleLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -12),

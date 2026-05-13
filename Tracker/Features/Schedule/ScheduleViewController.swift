@@ -7,18 +7,11 @@
 
 import UIKit
 
-protocol ScheduleViewControllerDelegate: AnyObject {
-    func scheduleViewController(
-        _ controller: ScheduleViewController,
-        didSelect schedule: Set<DayOfWeek>
-    )
-}
-
 final class ScheduleViewController: UIViewController {
 
     weak var delegate: ScheduleViewControllerDelegate?
 
-    private var selectedDays: Set<DayOfWeek>
+    var selectedDays: Set<DayOfWeek>
 
     private let tableView = UITableView(frame: .zero, style: .plain)
 
@@ -27,7 +20,7 @@ final class ScheduleViewController: UIViewController {
         button.setTitle("Готово", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        button.backgroundColor = UIColor(named: "BlackIOS") ?? .black
+        button.backgroundColor = UIColor(resource: .blackDayIOS)
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -46,18 +39,25 @@ final class ScheduleViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        view.backgroundColor = .white
-        title = "Расписание"
-
+        
+        setupView()
+        setupContent()
         setupTableView()
         setupDoneButton()
+    }
+    
+    private func setupView() {
+        view.backgroundColor = .backgroundColorIOS
+        navigationItem.setHidesBackButton(true, animated: false)
+    }
+    
+    private func setupContent() {
+        title = "Расписание"
     }
 
     private func setupTableView() {
         tableView.backgroundColor = .clear
-        tableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
-        tableView.separatorColor = .systemGray4
+        tableView.separatorStyle = .none
         tableView.layer.cornerRadius = 16
         tableView.clipsToBounds = true
         tableView.isScrollEnabled = false
@@ -90,53 +90,5 @@ final class ScheduleViewController: UIViewController {
     @objc private func doneButtonTapped() {
         delegate?.scheduleViewController(self, didSelect: selectedDays)
         navigationController?.popViewController(animated: true)
-    }
-}
-
-extension ScheduleViewController: UITableViewDataSource {
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        DayOfWeek.allCases.count
-    }
-
-    func tableView(
-        _ tableView: UITableView,
-        cellForRowAt indexPath: IndexPath
-    ) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(
-            withIdentifier: ScheduleCell.reuseIdentifier,
-            for: indexPath
-        ) as? ScheduleCell else {
-            return UITableViewCell()
-        }
-
-        let day = DayOfWeek.allCases[indexPath.row]
-
-        cell.configure(
-            title: day.title,
-            isOn: selectedDays.contains(day)
-        )
-
-        cell.onSwitchChanged = { [weak self] isOn in
-            guard let self else { return }
-
-            if isOn {
-                self.selectedDays.insert(day)
-            } else {
-                self.selectedDays.remove(day)
-            }
-        }
-
-        return cell
-    }
-}
-
-extension ScheduleViewController: UITableViewDelegate {
-
-    func tableView(
-        _ tableView: UITableView,
-        heightForRowAt indexPath: IndexPath
-    ) -> CGFloat {
-        75
     }
 }

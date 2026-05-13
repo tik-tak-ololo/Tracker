@@ -11,8 +11,22 @@ final class NewHabitViewController: UIViewController {
 
     weak var delegate: NewHabitViewControllerDelegate?
 
-    private var selectedSchedule: Set<DayOfWeek> = []
+    var selectedCategoryTitle: String? = "Важное"
+    var selectedSchedule: Set<DayOfWeek> = []
 
+    var scheduleTitle: String? {
+        guard !selectedSchedule.isEmpty else { return nil }
+
+        if selectedSchedule.count == DayOfWeek.allCases.count {
+            return "Каждый день"
+        }
+
+        return DayOfWeek.allCases
+            .filter { selectedSchedule.contains($0) }
+            .map { $0.shortTitle }
+            .joined(separator: ", ")
+    }
+    
     private let titleTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Введите название трекера"
@@ -26,7 +40,7 @@ final class NewHabitViewController: UIViewController {
         return textField
     }()
 
-    private let optionsTableView = UITableView(frame: .zero, style: .plain)
+    let optionsTableView = UITableView(frame: .zero, style: .plain)
 
     private lazy var cancelButton: UIButton = {
         let button = UIButton(type: .system)
@@ -54,19 +68,26 @@ final class NewHabitViewController: UIViewController {
         return button
     }()
 
-    private let options = ["Категория", "Расписание"]
+    let options = ["Категория", "Расписание"]
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        view.backgroundColor = .backgroundColorIOS
-        title = "Новая привычка"
-
+        
+        setupView()
         setupTextField()
         setupOptionsTableView()
         setupButtons()
+        setupContent()
 
         titleTextField.addTarget(self, action: #selector(textFieldChanged), for: .editingChanged)
+    }
+    
+    private func setupView() {
+        view.backgroundColor = .backgroundColorIOS
+    }
+    
+    private func setupContent() {
+        title = "Новая привычка"
     }
 
     private func setupTextField() {
@@ -85,12 +106,9 @@ final class NewHabitViewController: UIViewController {
         optionsTableView.layer.cornerRadius = 16
         optionsTableView.clipsToBounds = true
         optionsTableView.isScrollEnabled = false
-        optionsTableView.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         optionsTableView.separatorStyle = .none
-        optionsTableView.separatorColor = .systemGray4
         optionsTableView.dataSource = self
         optionsTableView.delegate = self
-        //optionsTableView.register(UITableViewCell.self, forCellReuseIdentifier: "OptionCell")
         optionsTableView.register(TrackerOptionCell.self, forCellReuseIdentifier: TrackerOptionCell.reuseIdentifier)
         optionsTableView.translatesAutoresizingMaskIntoConstraints = false
 
@@ -156,79 +174,9 @@ final class NewHabitViewController: UIViewController {
         delegate?.newHabitViewController(
             self,
             didCreateTracker: tracker,
-            categoryTitle: "Важное"
+            categoryTitle: selectedCategoryTitle ?? "Важное"
         )
 
         dismiss(animated: true)
-    }
-}
-
-extension NewHabitViewController: UITableViewDataSource {
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        options.count
-    }
-
-    func tableView(
-        _ tableView: UITableView,
-        cellForRowAt indexPath: IndexPath
-    ) -> UITableViewCell {
-        //let cell = tableView.dequeueReusableCell(withIdentifier: "OptionCell", for: indexPath)
-        
-        guard let cell = tableView.dequeueReusableCell(
-            withIdentifier: TrackerOptionCell.reuseIdentifier,
-            for: indexPath
-        ) as? TrackerOptionCell else {
-            return UITableViewCell()
-        }
-        
-        cell.textLabel?.font = .systemFont(ofSize: 17)
-        cell.textLabel?.textColor = .textColorIOS
-        cell.backgroundColor = .backgroundDayIOS
-        cell.selectionStyle = .none
-        
-        cell.configure(
-            title: options[indexPath.row],
-            showsSeparator: indexPath.row != options.count - 1
-        )
-
-        return cell
-    }
-}
-
-extension NewHabitViewController: UITableViewDelegate {
-
-    func tableView(
-        _ tableView: UITableView,
-        heightForRowAt indexPath: IndexPath
-    ) -> CGFloat {
-        75
-    }
-
-    func tableView(
-        _ tableView: UITableView,
-        didSelectRowAt indexPath: IndexPath
-    ) {
-        if indexPath.row == 0 {
-            // Пока не функционирует
-            return
-        }
-
-        if indexPath.row == 1 {
-            let scheduleVC = ScheduleViewController(selectedDays: selectedSchedule)
-            scheduleVC.delegate = self
-            navigationController?.pushViewController(scheduleVC, animated: true)
-        }
-    }
-}
-
-extension NewHabitViewController: ScheduleViewControllerDelegate {
-
-    func scheduleViewController(
-        _ controller: ScheduleViewController,
-        didSelect schedule: Set<DayOfWeek>
-    ) {
-        selectedSchedule = schedule
-        optionsTableView.reloadData()
     }
 }

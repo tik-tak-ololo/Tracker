@@ -348,7 +348,7 @@ final class TrackersViewController: UIViewController {
                     Tracker(
                         id: UUID(),
                         name: "Поливать растения",
-                        color: .systemGreen,
+                        color: .cardGreenColorIOS,
                         emoji: "😪",
                         schedule: [
                             .monday,
