@@ -181,6 +181,9 @@ final class TrackersViewController: UIViewController {
         setupActions()
         setupInitialData()
         reloadVisibleTrackers()
+        
+        searchTextField.delegate = self
+        setupHideKeyboardOnTap()
     }
 
     // MARK: - Setup
@@ -233,6 +236,16 @@ final class TrackersViewController: UIViewController {
         view.addSubview(placeholderView)
         placeholderView.addSubview(placeholderImageView)
         placeholderView.addSubview(placeholderLabel)
+    }
+    
+    private func setupHideKeyboardOnTap() {
+        let tapGesture = UITapGestureRecognizer(
+            target: self,
+            action: #selector(didTapView)
+        )
+
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
     }
     
     private func setupContent() {
@@ -381,6 +394,10 @@ final class TrackersViewController: UIViewController {
     
     @objc private func didChangeDate(_ sender: UIDatePicker) {
         selectedDate = sender.date
+    }
+    
+    @objc private func didTapView() {
+        view.endEditing(true)
     }
 
     // MARK: - Logic
@@ -595,5 +612,13 @@ extension TrackersViewController: NewHabitViewControllerDelegate {
     ) {
         addTracker(tracker, toCategoryWithTitle: categoryTitle)
         reloadVisibleTrackers()
+    }
+}
+
+extension TrackersViewController: UITextFieldDelegate {
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }

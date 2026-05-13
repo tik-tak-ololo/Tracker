@@ -24,6 +24,16 @@ final class ScheduleCell: UITableViewCell {
     private lazy var daySwitch: UISwitch = {
         let switchControl = UISwitch()
         switchControl.addTarget(self, action: #selector(switchChanged), for: .valueChanged)
+        
+        // ON
+        switchControl.onTintColor = .switcherBackgroundOnIOS
+        
+        // Thumb
+        switchControl.thumbTintColor = .white
+        
+        // OFF
+        switchControl.tintColor = .switcherBackgroundOffIOS
+        switchControl.backgroundColor = .switcherBackgroundOffIOS
         switchControl.translatesAutoresizingMaskIntoConstraints = false
         return switchControl
     }()
@@ -57,6 +67,12 @@ final class ScheduleCell: UITableViewCell {
             separatorView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             separatorView.heightAnchor.constraint(equalToConstant: 0.5)
         ])
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        daySwitch.layer.cornerRadius = daySwitch.bounds.height / 2
     }
 
     required init?(coder: NSCoder) {

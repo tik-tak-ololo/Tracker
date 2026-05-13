@@ -79,6 +79,8 @@ final class NewHabitViewController: UIViewController {
         setupButtons()
         setupContent()
 
+        titleTextField.delegate = self
+        setupHideKeyboardOnTap()
         titleTextField.addTarget(self, action: #selector(textFieldChanged), for: .editingChanged)
     }
     
@@ -99,6 +101,17 @@ final class NewHabitViewController: UIViewController {
             titleTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             titleTextField.heightAnchor.constraint(equalToConstant: 75)
         ])
+    }
+    
+    
+    private func setupHideKeyboardOnTap() {
+        let tapGesture = UITapGestureRecognizer(
+            target: self,
+            action: #selector(didTapView)
+        )
+
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
     }
 
     private func setupOptionsTableView() {
@@ -166,7 +179,7 @@ final class NewHabitViewController: UIViewController {
         let tracker = Tracker(
             id: UUID(),
             name: title,
-            color: .systemBlue,
+            color: .cardGreenColorIOS,
             emoji: "🙂",
             schedule: selectedSchedule
         )
@@ -178,5 +191,16 @@ final class NewHabitViewController: UIViewController {
         )
 
         dismiss(animated: true)
+    }
+    
+    @objc private func didTapView() {
+        view.endEditing(true)
+    }
+}
+extension NewHabitViewController: UITextFieldDelegate {
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }
