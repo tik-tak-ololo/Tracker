@@ -68,6 +68,24 @@ final class NewHabitViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
+    
+    private let titleLimitLabel: UILabel = {
+        let label = UILabel()
+
+        label.text = "Ограничение 38 символов"
+        label.font = .systemFont(ofSize: 17)
+        label.textColor = .systemRed
+        label.textAlignment = .center
+        label.isHidden = true
+
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var optionsTableTopConstraint = optionsTableView.topAnchor.constraint(
+        equalTo: titleTextField.bottomAnchor,
+        constant: 24
+    )
 
     let options = ["Категория", "Расписание"]
 
@@ -95,12 +113,18 @@ final class NewHabitViewController: UIViewController {
 
     private func setupTextField() {
         view.addSubview(titleTextField)
+        view.addSubview(titleLimitLabel)
 
         NSLayoutConstraint.activate([
             titleTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 24),
             titleTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             titleTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            titleTextField.heightAnchor.constraint(equalToConstant: 75)
+            titleTextField.heightAnchor.constraint(equalToConstant: 75),
+
+            titleLimitLabel.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 8),
+            titleLimitLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            titleLimitLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            titleLimitLabel.heightAnchor.constraint(equalToConstant: 22)
         ])
     }
     
@@ -127,13 +151,29 @@ final class NewHabitViewController: UIViewController {
         optionsTableView.translatesAutoresizingMaskIntoConstraints = false
 
         view.addSubview(optionsTableView)
+        
+        optionsTableTopConstraint = optionsTableView.topAnchor.constraint(
+            equalTo: titleTextField.bottomAnchor,
+            constant: 24
+        )
+
+        optionsTableTopConstraint.isActive = true
 
         NSLayoutConstraint.activate([
-            optionsTableView.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 24),
+            optionsTableTopConstraint,
             optionsTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             optionsTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             optionsTableView.heightAnchor.constraint(equalToConstant: 150)
         ])
+    }
+    
+    private func updateTitleLimitState(isExceeded: Bool) {
+        titleLimitLabel.isHidden = !isExceeded
+        optionsTableTopConstraint.constant = isExceeded ? 54 : 24
+
+        UIView.animate(withDuration: 0.2) {
+            self.view.layoutIfNeeded()
+        }
     }
 
     private func setupButtons() {
@@ -198,6 +238,7 @@ final class NewHabitViewController: UIViewController {
         view.endEditing(true)
     }
 }
+
 extension NewHabitViewController: UITextFieldDelegate {
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -210,7 +251,6 @@ extension NewHabitViewController: UITextFieldDelegate {
         shouldChangeCharactersIn range: NSRange,
         replacementString string: String
     ) -> Bool {
-
         guard let currentText = textField.text,
               let textRange = Range(range, in: currentText)
         else {
@@ -218,7 +258,10 @@ extension NewHabitViewController: UITextFieldDelegate {
         }
 
         let updatedText = currentText.replacingCharacters(in: textRange, with: string)
+        let isLimitExceeded = updatedText.count > maxTitleLength
 
-        return updatedText.count <= maxTitleLength
+        updateTitleLimitState(isExceeded: isLimitExceeded)
+
+        return !isLimitExceeded
     }
 }
