@@ -74,7 +74,7 @@ final class NewHabitViewController: UIViewController {
 
         label.text = "Ограничение 38 символов"
         label.font = .systemFont(ofSize: 17)
-        label.textColor = .systemRed
+        label.textColor = .warningTextColorIOS
         label.textAlignment = .center
         label.isHidden = true
 
