@@ -13,6 +13,7 @@ final class NewHabitViewController: UIViewController {
 
     var selectedCategoryTitle: String? = "Важное"
     var selectedSchedule: Set<DayOfWeek> = []
+    private let maxTitleLength = 38
 
     var scheduleTitle: String? {
         guard !selectedSchedule.isEmpty else { return nil }
@@ -202,5 +203,22 @@ extension NewHabitViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
+    }
+
+    func textField(
+        _ textField: UITextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
+
+        guard let currentText = textField.text,
+              let textRange = Range(range, in: currentText)
+        else {
+            return false
+        }
+
+        let updatedText = currentText.replacingCharacters(in: textRange, with: string)
+
+        return updatedText.count <= maxTitleLength
     }
 }
