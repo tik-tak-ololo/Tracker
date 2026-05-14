@@ -19,9 +19,9 @@ final class TrackersViewController: UIViewController {
 
     var completedTrackers: [TrackerRecord] = []
 
-    private var visibleCategories: [TrackerCategory] = []
+    var visibleCategories: [TrackerCategory] = []
 
-    private var selectedDate = Date() {
+    var selectedDate = Date() {
         didSet {
             reloadVisibleTrackers()
         }
@@ -72,8 +72,6 @@ final class TrackersViewController: UIViewController {
         ]
 
     }()
-    
-    // MARK: - Search
 
     private let searchContainer: UIView = {
         let view = UIView()
@@ -160,12 +158,15 @@ final class TrackersViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
+    
+    // MARK: - Properties
 
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "dd.MM.yy"
         return formatter
     }()
+    
     private var isSelectedDateInFuture: Bool {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
@@ -408,7 +409,7 @@ final class TrackersViewController: UIViewController {
 
     // MARK: - Logic
 
-    private func reloadVisibleTrackers() {
+    func reloadVisibleTrackers() {
         let selectedDayOfWeek = dayOfWeek(from: selectedDate)
 
         visibleCategories = categories
@@ -435,7 +436,7 @@ final class TrackersViewController: UIViewController {
         collectionView.reloadData()
     }
 
-    private func toggleTrackerCompletion(id: UUID) {
+    func toggleTrackerCompletion(id: UUID) {
         
         guard !isSelectedDateInFuture else {
             return
@@ -458,20 +459,20 @@ final class TrackersViewController: UIViewController {
         collectionView.reloadData()
     }
 
-    private func isTrackerCompleted(id: UUID, on date: Date) -> Bool {
+    func isTrackerCompleted(id: UUID, on date: Date) -> Bool {
         completedTrackers.contains {
             $0.trackerId == id &&
             Calendar.current.isDate($0.date, inSameDayAs: date)
         }
     }
 
-    private func completedDaysCount(for trackerId: UUID) -> Int {
+    func completedDaysCount(for trackerId: UUID) -> Int {
         completedTrackers.filter {
             $0.trackerId == trackerId
         }.count
     }
 
-    private func addTracker(_ tracker: Tracker, toCategoryWithTitle title: String) {
+    func addTracker(_ tracker: Tracker, toCategoryWithTitle title: String) {
         let categoryExists = categories.contains {
             $0.title == title
         }
@@ -516,120 +517,5 @@ final class TrackersViewController: UIViewController {
         default:
             return .saturday
         }
-    }
-}
-
-// MARK: - UICollectionViewDataSource
-
-extension TrackersViewController: UICollectionViewDataSource {
-
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        visibleCategories.count
-    }
-
-    func collectionView(
-        _ collectionView: UICollectionView,
-        numberOfItemsInSection section: Int
-    ) -> Int {
-        visibleCategories[section].trackers.count
-    }
-
-    func collectionView(
-        _ collectionView: UICollectionView,
-        cellForItemAt indexPath: IndexPath
-    ) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: TrackerCollectionViewCell.reuseIdentifier,
-            for: indexPath
-        ) as? TrackerCollectionViewCell else {
-            return UICollectionViewCell()
-        }
-
-        let tracker = visibleCategories[indexPath.section].trackers[indexPath.item]
-
-        cell.configure(
-            with: tracker,
-            completedDays: completedDaysCount(for: tracker.id),
-            isCompleted: isTrackerCompleted(id: tracker.id, on: selectedDate)
-        ) { [weak self] trackerId in
-            self?.toggleTrackerCompletion(id: trackerId)
-        }
-
-        return cell
-    }
-
-    func collectionView(
-        _ collectionView: UICollectionView,
-        viewForSupplementaryElementOfKind kind: String,
-        at indexPath: IndexPath
-    ) -> UICollectionReusableView {
-        guard kind == UICollectionView.elementKindSectionHeader else {
-            return UICollectionReusableView()
-        }
-
-        guard let header = collectionView.dequeueReusableSupplementaryView(
-            ofKind: kind,
-            withReuseIdentifier: TrackerSectionHeaderView.reuseIdentifier,
-            for: indexPath
-        ) as? TrackerSectionHeaderView else {
-            return UICollectionReusableView()
-        }
-
-        header.configure(title: visibleCategories[indexPath.section].title)
-        return header
-    }
-}
-
-// MARK: - UICollectionViewDelegateFlowLayout
-
-extension TrackersViewController: UICollectionViewDelegateFlowLayout {
-
-    func collectionView(
-        _ collectionView: UICollectionView,
-        layout collectionViewLayout: UICollectionViewLayout,
-        sizeForItemAt indexPath: IndexPath
-    ) -> CGSize {
-        let horizontalInsets: CGFloat = 32
-        let spacing: CGFloat = 9
-
-        let width = (
-            collectionView.bounds.width
-            - horizontalInsets
-            - spacing
-        ) / 2
-
-        return CGSize(width: width, height: 132)
-    }
-
-    func collectionView(
-        _ collectionView: UICollectionView,
-        layout collectionViewLayout: UICollectionViewLayout,
-        referenceSizeForHeaderInSection section: Int
-    ) -> CGSize {
-        CGSize(width: collectionView.bounds.width, height: 18)
-    }
-}
-
-extension TrackersViewController: NewHabitViewControllerDelegate {
-
-    func newHabitViewControllerDidCancel(_ controller: NewHabitViewController) {
-        dismiss(animated: true)
-    }
-
-    func newHabitViewController(
-        _ controller: NewHabitViewController,
-        didCreateTracker tracker: Tracker,
-        categoryTitle: String
-    ) {
-        addTracker(tracker, toCategoryWithTitle: categoryTitle)
-        reloadVisibleTrackers()
-    }
-}
-
-extension TrackersViewController: UITextFieldDelegate {
-
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-        return true
     }
 }
