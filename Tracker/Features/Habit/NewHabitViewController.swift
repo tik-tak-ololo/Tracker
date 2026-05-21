@@ -37,9 +37,9 @@ final class NewHabitViewController: UIViewController {
                   "🥦", "🏓", "🥇", "🎸", "🏝", "😪"]
 
     let colors: [UIColor] = [
-        .systemRed, .systemOrange, .systemBlue, .systemPurple, .systemGreen, .systemPink,
-        .systemTeal, .systemIndigo, .systemBrown, .cyan, .magenta, .yellow,
-        .systemMint, .systemGray, .darkGray, .lightGray, .black, .systemCyan
+        .cardColor1IOS, .cardColor2IOS, .cardColor3IOS, .cardColor4IOS, .cardColor5IOS, .cardColor6IOS,
+            .cardColor7IOS, .cardColor8IOS, .cardColor9IOS, .cardColor10IOS, .cardColor11IOS, .cardColor12IOS,
+            .cardColor13IOS, .cardColor14IOS, .cardColor15IOS, .cardColor16IOS, .cardColor17IOS, .cardColor18IOS,
     ]
 
     var selectedEmoji: String = "🙂"
@@ -255,14 +255,14 @@ final class NewHabitViewController: UIViewController {
 
         NSLayoutConstraint.activate([
             emojiCollectionView.topAnchor.constraint(equalTo: optionsTableView.bottomAnchor, constant: 32),
-            emojiCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            emojiCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            emojiCollectionView.heightAnchor.constraint(equalToConstant: 204),
+            emojiCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 1),
+            emojiCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -1),
+            emojiCollectionView.heightAnchor.constraint(equalToConstant: 220),
 
             colorCollectionView.topAnchor.constraint(equalTo: emojiCollectionView.bottomAnchor, constant: 16),
-            colorCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            colorCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            colorCollectionView.heightAnchor.constraint(equalToConstant: 204),
+            colorCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 1),
+            colorCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -1),
+            colorCollectionView.heightAnchor.constraint(equalToConstant: 220),
 
             // это задаёт высоту contentView для scrollView
             colorCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24)

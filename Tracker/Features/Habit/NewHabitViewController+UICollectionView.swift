@@ -96,7 +96,7 @@ extension NewHabitViewController: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
-        CGSize(width: 52, height: 52)
+        CGSize(width: 58, height: 58)
     }
     
     func collectionView(
@@ -105,5 +105,48 @@ extension NewHabitViewController: UICollectionViewDelegateFlowLayout {
         referenceSizeForHeaderInSection section: Int
     ) -> CGSize {
         CGSize(width: collectionView.bounds.width, height: 34)
+    }
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        insetForSectionAt section: Int
+    ) -> UIEdgeInsets {
+
+        let headerHeight: CGFloat = 34
+
+        let rows: CGFloat = 3
+        let itemsPerRow: CGFloat = 6
+        let itemHeight: CGFloat = 58
+        let itemWidth: CGFloat = 58
+        let lineSpacing: CGFloat = 0
+        let spacing: CGFloat = 5
+
+        let contentHeight =
+            headerHeight +
+            (rows * itemHeight) +
+            ((rows - 1) * lineSpacing)
+
+        let verticalInset = max(
+            0,
+            (collectionView.bounds.height - contentHeight) / 2
+        )
+        
+        let totalItemsWidth = itemWidth * itemsPerRow
+        let totalSpacingWidth = spacing * (itemsPerRow - 1)
+
+        let totalContentWidth = totalItemsWidth + totalSpacingWidth
+
+        let horizontalInset = max(
+            0,
+            (collectionView.bounds.width - totalContentWidth) / 2
+        )
+
+        return UIEdgeInsets(
+            top: verticalInset,
+            left: horizontalInset,
+            bottom: 0,
+            right: horizontalInset
+        )
     }
 }

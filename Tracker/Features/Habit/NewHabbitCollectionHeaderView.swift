@@ -25,7 +25,7 @@ final class NewHabbitCollectionHeaderView: UICollectionReusableView {
         addSubview(titleLabel)
 
         NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 27),
             titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor)
         ])
     }
