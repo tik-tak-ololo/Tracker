@@ -37,7 +37,15 @@ final class TrackerRecordStore: NSObject {
     }()
 
     var records: Set<TrackerRecord> {
-        Set(fetchedResultsController.fetchedObjects?.compactMap { makeRecord(from: $0) } ?? [])
+        Set(
+            fetchedResultsController.fetchedObjects?
+                .compactMap {
+                    TrackerRecordCoreDataMapper.makeRecord(
+                        from: $0,
+                        calendar: calendar
+                    )
+                } ?? []
+        )
     }
 
     init(context: NSManagedObjectContext = CoreDataStack.shared.context) {
@@ -64,8 +72,11 @@ final class TrackerRecordStore: NSObject {
             into: context
         )
 
-        object.setValue(record.trackerId, forKey: "id")
-        object.setValue(calendar.startOfDay(for: record.date), forKey: "date")
+        TrackerRecordCoreDataMapper.update(
+            object,
+            with: record,
+            calendar: calendar
+        )
 
         try save()
     }
@@ -96,20 +107,6 @@ final class TrackerRecordStore: NSObject {
 
     func completedDaysCount(for trackerId: UUID) -> Int {
         records.filter { $0.trackerId == trackerId }.count
-    }
-
-    private func makeRecord(from object: NSManagedObject) -> TrackerRecord? {
-        guard
-            let trackerId = object.value(forKey: "id") as? UUID,
-            let date = object.value(forKey: "date") as? Date
-        else {
-            return nil
-        }
-
-        return TrackerRecord(
-            trackerId: trackerId,
-            date: calendar.startOfDay(for: date)
-        )
     }
 
     private func save() throws {

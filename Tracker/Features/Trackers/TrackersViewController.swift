@@ -10,6 +10,7 @@ import UIKit
 final class TrackersViewController: UIViewController {
     
     // MARK: - Stores
+    
     private let trackerStore = TrackerStore()
     private let trackerCategoryStore = TrackerCategoryStore()
     private let trackerRecordStore = TrackerRecordStore()
@@ -366,31 +367,6 @@ final class TrackersViewController: UIViewController {
         )
     }
 
-    private func setupInitialData() {
-        categories = [
-            TrackerCategory(
-                title: "Домашний уют",
-                trackers: [
-                    Tracker(
-                        id: UUID(),
-                        name: "Поливать растения",
-                        color: .cardGreenColorIOS,
-                        emoji: "😪",
-                        schedule: [
-                            .monday,
-                            .tuesday,
-                            .wednesday,
-                            .thursday,
-                            .friday,
-                            .saturday,
-                            .sunday
-                        ]
-                    )
-                ]
-            )
-        ]
-    }
-
     private func setupStores() {
         trackerStore.delegate = self
         trackerCategoryStore.delegate = self
@@ -452,27 +428,6 @@ final class TrackersViewController: UIViewController {
     }
 
     func toggleTrackerCompletion(id: UUID) {
-        
-//        guard !isSelectedDateInFuture else {
-//            return
-//        }
-//        
-//        if isTrackerCompleted(id: id, on: selectedDate) {
-//            completedTrackers.removeAll {
-//                $0.trackerId == id &&
-//                Calendar.current.isDate($0.date, inSameDayAs: selectedDate)
-//            }
-//        } else {
-//            completedTrackers.append(
-//                TrackerRecord(
-//                    trackerId: id,
-//                    date: selectedDate
-//                )
-//            )
-//        }
-//
-//        collectionView.reloadData()
-        
         guard !isSelectedDateInFuture else { return }
 
         let record = TrackerRecord(
@@ -489,7 +444,6 @@ final class TrackersViewController: UIViewController {
         } catch {
             assertionFailure("Failed to toggle tracker record: \(error)")
         }
-        
     }
 
     func isTrackerCompleted(id: UUID, on date: Date) -> Bool {
@@ -506,30 +460,6 @@ final class TrackersViewController: UIViewController {
     }
 
     func addTracker(_ tracker: Tracker, toCategoryWithTitle title: String) {
-//        let categoryExists = categories.contains {
-//            $0.title == title
-//        }
-//
-//        if categoryExists {
-//            categories = categories.map { category in
-//                guard category.title == title else {
-//                    return category
-//                }
-//
-//                return TrackerCategory(
-//                    title: category.title,
-//                    trackers: category.trackers + [tracker]
-//                )
-//            }
-//        } else {
-//            categories = categories + [
-//                TrackerCategory(
-//                    title: title,
-//                    trackers: [tracker]
-//                )
-//            ]
-//        }
-        
         do {
             try trackerStore.addTracker(tracker, to: title)
         } catch {

@@ -36,7 +36,7 @@ final class TrackerStore: NSObject {
     }()
 
     var trackers: [Tracker] {
-        fetchedResultsController.fetchedObjects?.compactMap { makeTracker(from: $0) } ?? []
+        fetchedResultsController.fetchedObjects?.compactMap { TrackerCoreDataMapper.makeTracker(from: $0) } ?? []
     }
 
     init(context: NSManagedObjectContext = CoreDataStack.shared.context) {
@@ -56,14 +56,7 @@ final class TrackerStore: NSObject {
             into: context
         )
 
-        trackerObject.setValue(tracker.id, forKey: "id")
-        trackerObject.setValue(tracker.name, forKey: "title")
-        trackerObject.setValue(tracker.emoji, forKey: "emoji")
-        trackerObject.setValue(tracker.color.hexString, forKey: "colorHex")
-        trackerObject.setValue(
-            tracker.schedule.map { NSNumber(value: $0.rawValue) },
-            forKey: "schedule"
-        )
+        TrackerCoreDataMapper.update(trackerObject, with: tracker)
 
         let categoryObject = try fetchOrCreateCategory(title: categoryTitle)
         trackerObject.setValue(categoryObject, forKey: "category")
@@ -97,7 +90,9 @@ final class TrackerStore: NSObject {
             forEntityName: "TrackerCategoryCoreData",
             into: context
         )
-        category.setValue(title, forKey: "title")
+
+        TrackerCategoryCoreDataMapper.update(category, title: title)
+
         return category
     }
 

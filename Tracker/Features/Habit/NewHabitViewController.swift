@@ -43,7 +43,7 @@ final class NewHabitViewController: UIViewController {
     ]
 
     var selectedEmoji: String = "🙂"
-    var selectedColor: UIColor = .cardGreenColorIOS
+    var selectedColor: UIColor = .cardColor1IOS
     
     // MARK: - UI
     

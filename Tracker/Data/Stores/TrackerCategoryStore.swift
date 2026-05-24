@@ -36,7 +36,7 @@ final class TrackerCategoryStore: NSObject {
     }()
 
     var categories: [TrackerCategory] {
-        fetchedResultsController.fetchedObjects?.compactMap { makeCategory(from: $0) } ?? []
+        fetchedResultsController.fetchedObjects?.compactMap { TrackerCategoryCoreDataMapper.makeCategory(from: $0) } ?? []
     }
 
     init(context: NSManagedObjectContext = CoreDataStack.shared.context) {
@@ -63,44 +63,10 @@ final class TrackerCategoryStore: NSObject {
             forEntityName: "TrackerCategoryCoreData",
             into: context
         )
-        category.setValue(title, forKey: "title")
+
+        TrackerCategoryCoreDataMapper.update(category, title: title)
 
         try save()
-    }
-
-    private func makeCategory(from object: NSManagedObject) -> TrackerCategory? {
-        guard let title = object.value(forKey: "title") as? String else {
-            return nil
-        }
-
-        let trackerObjects = object.value(forKey: "trackers") as? Set<NSManagedObject> ?? []
-        let trackers = trackerObjects
-            .compactMap { makeTracker(from: $0) }
-            .sorted { $0.name < $1.name }
-
-        return TrackerCategory(title: title, trackers: trackers)
-    }
-
-    private func makeTracker(from object: NSManagedObject) -> Tracker? {
-        guard
-            let id = object.value(forKey: "id") as? UUID,
-            let name = object.value(forKey: "title") as? String,
-            let emoji = object.value(forKey: "emoji") as? String,
-            let colorHex = object.value(forKey: "colorHex") as? String
-        else {
-            return nil
-        }
-
-        let scheduleNumbers = object.value(forKey: "schedule") as? [NSNumber] ?? []
-        let schedule = Set(scheduleNumbers.compactMap { DayOfWeek(rawValue: $0.intValue) })
-
-        return Tracker(
-            id: id,
-            name: name,
-            color: UIColor(hex: colorHex),
-            emoji: emoji,
-            schedule: schedule
-        )
     }
 
     private func save() throws {
