@@ -8,20 +8,46 @@
 import UIKit
 import CoreData
 
-// MARK: - TrackerStore
+protocol TrackerStoreDelegate: AnyObject {
+    func trackerStoreDidUpdate(_ store: TrackerStore)
+}
 
-final class TrackerStore {
+final class TrackerStore: NSObject {
+
+    weak var delegate: TrackerStoreDelegate?
 
     private let context: NSManagedObjectContext
 
-    init(context: NSManagedObjectContext = CoreDataStack.shared.context) {
-        self.context = context
+    private lazy var fetchedResultsController: NSFetchedResultsController<NSManagedObject> = {
+        let request = NSFetchRequest<NSManagedObject>(entityName: "TrackerCoreData")
+        request.sortDescriptors = [
+            NSSortDescriptor(key: "title", ascending: true)
+        ]
+
+        let controller = NSFetchedResultsController(
+            fetchRequest: request,
+            managedObjectContext: context,
+            sectionNameKeyPath: nil,
+            cacheName: nil
+        )
+
+        controller.delegate = self
+        return controller
+    }()
+
+    var trackers: [Tracker] {
+        fetchedResultsController.fetchedObjects?.compactMap { makeTracker(from: $0) } ?? []
     }
 
-    func fetchTrackers() throws -> [Tracker] {
-        let request = NSFetchRequest<NSManagedObject>(entityName: "TrackerCoreData")
-        let objects = try context.fetch(request)
-        return objects.compactMap { makeTracker(from: $0) }
+    init(context: NSManagedObjectContext = CoreDataStack.shared.context) {
+        self.context = context
+        super.init()
+
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            assertionFailure("Failed to fetch trackers: \(error)")
+        }
     }
 
     func addTracker(_ tracker: Tracker, to categoryTitle: String) throws {
@@ -31,7 +57,7 @@ final class TrackerStore {
         )
 
         trackerObject.setValue(tracker.id, forKey: "id")
-        trackerObject.setValue(tracker.name, forKey: "name")
+        trackerObject.setValue(tracker.name, forKey: "title")
         trackerObject.setValue(tracker.emoji, forKey: "emoji")
         trackerObject.setValue(tracker.color.hexString, forKey: "colorHex")
         trackerObject.setValue(
@@ -78,7 +104,7 @@ final class TrackerStore {
     private func makeTracker(from object: NSManagedObject) -> Tracker? {
         guard
             let id = object.value(forKey: "id") as? UUID,
-            let name = object.value(forKey: "name") as? String,
+            let name = object.value(forKey: "title") as? String,
             let emoji = object.value(forKey: "emoji") as? String,
             let colorHex = object.value(forKey: "colorHex") as? String
         else {
@@ -86,11 +112,7 @@ final class TrackerStore {
         }
 
         let scheduleNumbers = object.value(forKey: "schedule") as? [NSNumber] ?? []
-        let schedule = Set(
-            scheduleNumbers.compactMap {
-                DayOfWeek(rawValue: $0.intValue)
-            }
-        )
+        let schedule = Set(scheduleNumbers.compactMap { DayOfWeek(rawValue: $0.intValue) })
 
         return Tracker(
             id: id,
@@ -104,5 +126,11 @@ final class TrackerStore {
     private func save() throws {
         guard context.hasChanges else { return }
         try context.save()
+    }
+}
+
+extension TrackerStore: NSFetchedResultsControllerDelegate {
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        delegate?.trackerStoreDidUpdate(self)
     }
 }

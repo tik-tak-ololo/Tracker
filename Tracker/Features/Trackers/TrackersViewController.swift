@@ -8,6 +8,11 @@
 import UIKit
 
 final class TrackersViewController: UIViewController {
+    
+    // MARK: - Stores
+    private let trackerStore = TrackerStore()
+    private let trackerCategoryStore = TrackerCategoryStore()
+    private let trackerRecordStore = TrackerRecordStore()
 
     // MARK: - Data
 
@@ -186,7 +191,8 @@ final class TrackersViewController: UIViewController {
         setupConstraints()
         setupCollectionView()
         setupActions()
-        setupInitialData()
+        //setupInitialData()
+        setupStores()
         reloadVisibleTrackers()
         
         searchTextField.delegate = self
@@ -385,6 +391,15 @@ final class TrackersViewController: UIViewController {
         ]
     }
 
+    private func setupStores() {
+        trackerStore.delegate = self
+        trackerCategoryStore.delegate = self
+        trackerRecordStore.delegate = self
+
+        categories = trackerCategoryStore.categories
+        completedTrackers = Array(trackerRecordStore.records)
+    }
+    
     // MARK: - Actions
 
     @objc private func didTapAddTrackerButton() {
@@ -438,25 +453,43 @@ final class TrackersViewController: UIViewController {
 
     func toggleTrackerCompletion(id: UUID) {
         
-        guard !isSelectedDateInFuture else {
-            return
+//        guard !isSelectedDateInFuture else {
+//            return
+//        }
+//        
+//        if isTrackerCompleted(id: id, on: selectedDate) {
+//            completedTrackers.removeAll {
+//                $0.trackerId == id &&
+//                Calendar.current.isDate($0.date, inSameDayAs: selectedDate)
+//            }
+//        } else {
+//            completedTrackers.append(
+//                TrackerRecord(
+//                    trackerId: id,
+//                    date: selectedDate
+//                )
+//            )
+//        }
+//
+//        collectionView.reloadData()
+        
+        guard !isSelectedDateInFuture else { return }
+
+        let record = TrackerRecord(
+            trackerId: id,
+            date: selectedDate
+        )
+
+        do {
+            if trackerRecordStore.isTrackerCompleted(id, on: selectedDate) {
+                try trackerRecordStore.deleteRecord(record)
+            } else {
+                try trackerRecordStore.addRecord(record)
+            }
+        } catch {
+            assertionFailure("Failed to toggle tracker record: \(error)")
         }
         
-        if isTrackerCompleted(id: id, on: selectedDate) {
-            completedTrackers.removeAll {
-                $0.trackerId == id &&
-                Calendar.current.isDate($0.date, inSameDayAs: selectedDate)
-            }
-        } else {
-            completedTrackers.append(
-                TrackerRecord(
-                    trackerId: id,
-                    date: selectedDate
-                )
-            )
-        }
-
-        collectionView.reloadData()
     }
 
     func isTrackerCompleted(id: UUID, on date: Date) -> Bool {
@@ -473,28 +506,34 @@ final class TrackersViewController: UIViewController {
     }
 
     func addTracker(_ tracker: Tracker, toCategoryWithTitle title: String) {
-        let categoryExists = categories.contains {
-            $0.title == title
-        }
-
-        if categoryExists {
-            categories = categories.map { category in
-                guard category.title == title else {
-                    return category
-                }
-
-                return TrackerCategory(
-                    title: category.title,
-                    trackers: category.trackers + [tracker]
-                )
-            }
-        } else {
-            categories = categories + [
-                TrackerCategory(
-                    title: title,
-                    trackers: [tracker]
-                )
-            ]
+//        let categoryExists = categories.contains {
+//            $0.title == title
+//        }
+//
+//        if categoryExists {
+//            categories = categories.map { category in
+//                guard category.title == title else {
+//                    return category
+//                }
+//
+//                return TrackerCategory(
+//                    title: category.title,
+//                    trackers: category.trackers + [tracker]
+//                )
+//            }
+//        } else {
+//            categories = categories + [
+//                TrackerCategory(
+//                    title: title,
+//                    trackers: [tracker]
+//                )
+//            ]
+//        }
+        
+        do {
+            try trackerStore.addTracker(tracker, to: title)
+        } catch {
+            assertionFailure("Failed to add tracker: \(error)")
         }
     }
 
@@ -517,5 +556,24 @@ final class TrackersViewController: UIViewController {
         default:
             return .saturday
         }
+    }
+}
+
+extension TrackersViewController: TrackerStoreDelegate {
+    func trackerStoreDidUpdate(_ store: TrackerStore) {
+        categories = trackerCategoryStore.categories
+    }
+}
+
+extension TrackersViewController: TrackerCategoryStoreDelegate {
+    func trackerCategoryStoreDidUpdate(_ store: TrackerCategoryStore) {
+        categories = store.categories
+    }
+}
+
+extension TrackersViewController: TrackerRecordStoreDelegate {
+    func trackerRecordStoreDidUpdate(_ store: TrackerRecordStore) {
+        completedTrackers = Array(store.records)
+        collectionView.reloadData()
     }
 }
