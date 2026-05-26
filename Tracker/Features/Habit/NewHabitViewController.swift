@@ -233,9 +233,9 @@ final class NewHabitViewController: UIViewController {
             forCellWithReuseIdentifier: TrackerEmojiCell.reuseIdentifier
         )
         emojiCollectionView.register(
-            NewHabbitCollectionHeaderView.self,
+            NewHabitCollectionHeaderView.self,
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-            withReuseIdentifier: NewHabbitCollectionHeaderView.reuseIdentifier
+            withReuseIdentifier: NewHabitCollectionHeaderView.reuseIdentifier
         )
 
         colorCollectionView.dataSource = self
@@ -245,9 +245,9 @@ final class NewHabitViewController: UIViewController {
             forCellWithReuseIdentifier: TrackerColorCell.reuseIdentifier
         )
         colorCollectionView.register(
-            NewHabbitCollectionHeaderView.self,
+            NewHabitCollectionHeaderView.self,
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-            withReuseIdentifier: NewHabbitCollectionHeaderView.reuseIdentifier
+            withReuseIdentifier: NewHabitCollectionHeaderView.reuseIdentifier
         )
 
         contentView.addSubview(emojiCollectionView)

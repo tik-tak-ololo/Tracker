@@ -1,5 +1,5 @@
 //
-//  NewHabbitCollectionHeaderView.swift
+//  NewHabitCollectionHeaderView.swift
 //  Tracker
 //
 //  Created by Сергей Хмелёв on 18.05.2026.
@@ -7,9 +7,9 @@
 
 import UIKit
 
-final class NewHabbitCollectionHeaderView: UICollectionReusableView {
+final class NewHabitCollectionHeaderView: UICollectionReusableView {
 
-    static let reuseIdentifier = "NewHabbitCollectionHeaderView"
+    static let reuseIdentifier = "NewHabitCollectionHeaderView"
 
     private let titleLabel: UILabel = {
         let label = UILabel()

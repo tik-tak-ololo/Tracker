@@ -62,9 +62,9 @@ extension NewHabitViewController: UICollectionViewDataSource {
 
         guard let header = collectionView.dequeueReusableSupplementaryView(
             ofKind: kind,
-            withReuseIdentifier: NewHabbitCollectionHeaderView.reuseIdentifier,
+            withReuseIdentifier: NewHabitCollectionHeaderView.reuseIdentifier,
             for: indexPath
-        ) as? NewHabbitCollectionHeaderView else {
+        ) as? NewHabitCollectionHeaderView else {
             return UICollectionReusableView()
         }
 
