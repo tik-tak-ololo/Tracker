@@ -1,0 +1,131 @@
+//
+//  TrackerStore.swift
+//  Tracker
+//
+//  Created by Сергей Хмелёв on 24.05.2026.
+//
+
+import UIKit
+import CoreData
+
+protocol TrackerStoreDelegate: AnyObject {
+    func trackerStoreDidUpdate(_ store: TrackerStore)
+}
+
+final class TrackerStore: NSObject {
+
+    weak var delegate: TrackerStoreDelegate?
+
+    private let context: NSManagedObjectContext
+
+    private lazy var fetchedResultsController: NSFetchedResultsController<NSManagedObject> = {
+        let request = NSFetchRequest<NSManagedObject>(entityName: "TrackerCoreData")
+        request.sortDescriptors = [
+            NSSortDescriptor(key: "title", ascending: true)
+        ]
+
+        let controller = NSFetchedResultsController(
+            fetchRequest: request,
+            managedObjectContext: context,
+            sectionNameKeyPath: nil,
+            cacheName: nil
+        )
+
+        controller.delegate = self
+        return controller
+    }()
+
+    var trackers: [Tracker] {
+        fetchedResultsController.fetchedObjects?.compactMap { TrackerCoreDataMapper.makeTracker(from: $0) } ?? []
+    }
+
+    init(context: NSManagedObjectContext = CoreDataStack.shared.context) {
+        self.context = context
+        super.init()
+
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            assertionFailure("Failed to fetch trackers: \(error)")
+        }
+    }
+
+    func addTracker(_ tracker: Tracker, to categoryTitle: String) throws {
+        let trackerObject = NSEntityDescription.insertNewObject(
+            forEntityName: "TrackerCoreData",
+            into: context
+        )
+
+        TrackerCoreDataMapper.update(trackerObject, with: tracker)
+
+        let categoryObject = try fetchOrCreateCategory(title: categoryTitle)
+        trackerObject.setValue(categoryObject, forKey: "category")
+
+        try save()
+    }
+
+    func deleteTracker(id: UUID) throws {
+        let request = NSFetchRequest<NSManagedObject>(entityName: "TrackerCoreData")
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        request.fetchLimit = 1
+
+        guard let object = try context.fetch(request).first else {
+            throw StoreError.objectNotFound
+        }
+
+        context.delete(object)
+        try save()
+    }
+
+    private func fetchOrCreateCategory(title: String) throws -> NSManagedObject {
+        let request = NSFetchRequest<NSManagedObject>(entityName: "TrackerCategoryCoreData")
+        request.predicate = NSPredicate(format: "title == %@", title)
+        request.fetchLimit = 1
+
+        if let category = try context.fetch(request).first {
+            return category
+        }
+
+        let category = NSEntityDescription.insertNewObject(
+            forEntityName: "TrackerCategoryCoreData",
+            into: context
+        )
+
+        TrackerCategoryCoreDataMapper.update(category, title: title)
+
+        return category
+    }
+
+    private func makeTracker(from object: NSManagedObject) -> Tracker? {
+        guard
+            let id = object.value(forKey: "id") as? UUID,
+            let name = object.value(forKey: "title") as? String,
+            let emoji = object.value(forKey: "emoji") as? String,
+            let colorHex = object.value(forKey: "colorHex") as? String
+        else {
+            return nil
+        }
+
+        let scheduleNumbers = object.value(forKey: "schedule") as? [NSNumber] ?? []
+        let schedule = Set(scheduleNumbers.compactMap { DayOfWeek(rawValue: $0.intValue) })
+
+        return Tracker(
+            id: id,
+            name: name,
+            color: UIColor(hex: colorHex),
+            emoji: emoji,
+            schedule: schedule
+        )
+    }
+
+    private func save() throws {
+        guard context.hasChanges else { return }
+        try context.save()
+    }
+}
+
+extension TrackerStore: NSFetchedResultsControllerDelegate {
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        delegate?.trackerStoreDidUpdate(self)
+    }
+}
