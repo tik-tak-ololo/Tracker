@@ -13,7 +13,7 @@ final class NewHabitViewController: UIViewController {
 
     weak var delegate: NewHabitViewControllerDelegate?
 
-    var selectedCategoryTitle: String? = "Важное"
+    var selectedCategoryTitle: String? = ""
     var selectedSchedule: Set<DayOfWeek> = []
     private let maxTitleLength = 38
 
@@ -128,6 +128,14 @@ final class NewHabitViewController: UIViewController {
         titleTextField.delegate = self
         setupHideKeyboardOnTap()
         titleTextField.addTarget(self, action: #selector(textFieldChanged), for: .editingChanged)
+        
+        navigationController?.navigationBar.titleTextAttributes = [
+            .font: UIFont.systemFont(
+                ofSize: 16,
+                weight: .medium
+            ),
+            .foregroundColor: UIColor.blackDayIOS
+        ]
     }
     
     // MARK: - Setup
@@ -346,7 +354,7 @@ final class NewHabitViewController: UIViewController {
         delegate?.newHabitViewController(
             self,
             didCreateTracker: tracker,
-            categoryTitle: selectedCategoryTitle ?? "Важное"
+            categoryTitle: selectedCategoryTitle ?? ""
         )
 
         dismiss(animated: true)
