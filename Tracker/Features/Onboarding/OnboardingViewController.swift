@@ -107,7 +107,7 @@ final class OnboardingViewController: UIViewController {
     }
 
     @objc private func didTapActionButton() {
-        UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
+        UserDefaultsService.shared.hasSeenOnboarding = true
 
         let mainViewController = TrackersViewController()
 

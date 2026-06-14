@@ -20,9 +20,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         let window = UIWindow(windowScene: windowScene)
 
-        let hasSeenOnboarding = UserDefaults.standard.bool(
-            forKey: "hasSeenOnboarding"
-        )
+        let hasSeenOnboarding = UserDefaultsService.shared.hasSeenOnboarding
 
         if hasSeenOnboarding {
             window.rootViewController = UINavigationController(
