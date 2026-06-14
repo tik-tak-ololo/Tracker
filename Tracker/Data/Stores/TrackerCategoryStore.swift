@@ -51,11 +51,10 @@ final class TrackerCategoryStore: NSObject {
     }
 
     func addCategory(title: String) throws {
-        let request = NSFetchRequest<NSManagedObject>(entityName: "TrackerCategoryCoreData")
-        request.predicate = NSPredicate(format: "title == %@", title)
-        request.fetchLimit = 1
+        let title = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !title.isEmpty else { return }
 
-        if try context.fetch(request).first != nil {
+        if try findCategoryObject(title: title) != nil {
             return
         }
 
@@ -64,9 +63,44 @@ final class TrackerCategoryStore: NSObject {
             into: context
         )
 
+            //category.setValue(UUID(), forKey: "id")
         TrackerCategoryCoreDataMapper.update(category, title: title)
 
         try save()
+    }
+
+    func updateCategory(oldTitle: String, newTitle: String) throws {
+        let newTitle = newTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !newTitle.isEmpty else { return }
+
+        guard let category = try findCategoryObject(title: oldTitle) else {
+            return
+        }
+
+        if oldTitle != newTitle,
+           try findCategoryObject(title: newTitle) != nil {
+            return
+        }
+
+        TrackerCategoryCoreDataMapper.update(category, title: newTitle)
+        try save()
+    }
+
+    func deleteCategory(title: String) throws {
+        guard let category = try findCategoryObject(title: title) else {
+            return
+        }
+
+        context.delete(category)
+        try save()
+    }
+
+    private func findCategoryObject(title: String) throws -> NSManagedObject? {
+        let request = NSFetchRequest<NSManagedObject>(entityName: "TrackerCategoryCoreData")
+        request.predicate = NSPredicate(format: "title == %@", title)
+        request.fetchLimit = 1
+
+        return try context.fetch(request).first
     }
 
     private func save() throws {
@@ -76,7 +110,9 @@ final class TrackerCategoryStore: NSObject {
 }
 
 extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {
-    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+    func controllerDidChangeContent(
+        _ controller: NSFetchedResultsController<NSFetchRequestResult>
+    ) {
         delegate?.trackerCategoryStoreDidUpdate(self)
     }
 }

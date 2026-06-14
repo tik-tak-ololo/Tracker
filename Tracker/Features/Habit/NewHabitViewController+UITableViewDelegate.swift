@@ -21,12 +21,26 @@ extension NewHabitViewController: UITableViewDelegate {
         didSelectRowAt indexPath: IndexPath
     ) {
         if indexPath.row == 0 {
-            selectedCategoryTitle = "Важное"
-            optionsTableView.reloadRows(
-                at: [indexPath],
-                with: .automatic
+            let store = TrackerCategoryStore()
+
+            let viewModel = CategoryViewModel(
+                store: store,
+                selectedCategoryTitle: selectedCategoryTitle
             )
-            return
+
+            let categoryViewController = CategoryViewController(viewModel: viewModel)
+
+            viewModel.onCategorySelected = { [weak self] title in
+                guard !title.isEmpty else { return }
+
+                self?.selectedCategoryTitle = title
+                self?.optionsTableView.reloadRows(
+                    at: [IndexPath(row: 0, section: 0)],
+                    with: .automatic
+                )
+            }
+
+            navigationController?.pushViewController(categoryViewController, animated: true)
         }
 
         if indexPath.row == 1 {
