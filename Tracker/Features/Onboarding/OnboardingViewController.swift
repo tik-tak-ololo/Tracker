@@ -109,15 +109,9 @@ final class OnboardingViewController: UIViewController {
     @objc private func didTapActionButton() {
         UserDefaultsService.shared.hasSeenOnboarding = true
 
-        let mainViewController = TrackersViewController()
-
-        let navigationController = UINavigationController(
-            rootViewController: mainViewController
-        )
-
         guard let window = view.window else { return }
 
-        window.rootViewController = navigationController
+        window.rootViewController = TabBarController()
         window.makeKeyAndVisible()
     }
     
