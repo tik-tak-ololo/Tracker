@@ -328,9 +328,6 @@ final class NewHabitViewController: UIViewController {
         let hasTitle = !(titleTextField.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
 
         createButton.isEnabled = hasTitle
-        createButton.backgroundColor = hasTitle
-            ? .blackDayIOS
-            : .grayIOS
     }
 
     @objc private func cancelButtonTapped() {

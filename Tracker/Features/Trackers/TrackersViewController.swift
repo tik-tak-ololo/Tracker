@@ -88,7 +88,10 @@ final class TrackersViewController: UIViewController {
     }()
 
     private let searchIcon: UIImageView = {
-        let iv = UIImageView(image: UIImage(resource: .searchFieldIcon))
+        let image = UIImage(resource: .searchFieldIcon)
+                .withRenderingMode(.alwaysTemplate)
+        let iv = UIImageView(image: image)
+        iv.tintColor = UIColor(resource: .searchFieldTextColorIOS)
         iv.translatesAutoresizingMaskIntoConstraints = false
         return iv
     }()
@@ -107,12 +110,7 @@ final class TrackersViewController: UIViewController {
 
         return [
             .font: UIFont.systemFont(ofSize: 17, weight: .regular),
-            .foregroundColor: UIColor(
-                red: 174/255,
-                green: 175/255,
-                blue: 180/255,
-                alpha: 1
-            ),
+            .foregroundColor: UIColor(resource: .searchFieldTextColorIOS),
             .paragraphStyle: paragraphStyle
         ]
 
