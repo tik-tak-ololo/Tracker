@@ -33,4 +33,39 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
     ) -> CGSize {
         CGSize(width: collectionView.bounds.width, height: 18)
     }
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
+        contextMenuConfigurationForItemAt indexPath: IndexPath,
+        point: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        UIContextMenuConfiguration(
+            identifier: nil,
+            previewProvider: nil
+        ) { _ in
+            let editAction = UIAction(title: "Редактировать") { _ in
+                AnalyticsService.shared.report(
+                    event: .click(item: .edit),
+                    screen: .main
+                )
+
+                // self?.editTracker(at: indexPath)
+            }
+
+            let deleteAction = UIAction(
+                title: "Удалить",
+                attributes: .destructive
+            ) { _ in
+                AnalyticsService.shared.report(
+                    event: .click(item: .delete),
+                    screen: .main
+                )
+
+                // self?.deleteTracker(at: indexPath)
+            }
+
+            return UIMenu(children: [editAction, deleteAction])
+        }
+    }
+    
 }

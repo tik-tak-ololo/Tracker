@@ -190,12 +190,29 @@ final class TrackersViewController: UIViewController {
         setupConstraints()
         setupCollectionView()
         setupActions()
-        //setupInitialData()
         setupStores()
         reloadVisibleTrackers()
         
         searchTextField.delegate = self
         setupHideKeyboardOnTap()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        AnalyticsService.shared.report(
+            event: .open,
+            screen: .main
+        )
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+
+        AnalyticsService.shared.report(
+            event: .close,
+            screen: .main
+        )
     }
 
     // MARK: - Setup
@@ -363,6 +380,12 @@ final class TrackersViewController: UIViewController {
             action: #selector(didChangeDate),
             for: .valueChanged
         )
+        
+        filtersButton.addTarget(
+            self,
+            action: #selector(didTapFiltersButton),
+            for: .touchUpInside
+        )
     }
 
     private func setupStores() {
@@ -377,10 +400,18 @@ final class TrackersViewController: UIViewController {
     // MARK: - Actions
 
     @objc private func didTapAddTrackerButton() {
+        
+        AnalyticsService.shared.report(
+            event: .click(item: .addTrack),
+            screen: .main
+        )
+        
         let newHabitVC = NewHabitViewController()
         newHabitVC.delegate = self
+        
         let navigationController = UINavigationController(rootViewController: newHabitVC)
         navigationController.modalPresentationStyle = .pageSheet
+        
         present(navigationController, animated: true)
     }
 
@@ -394,6 +425,17 @@ final class TrackersViewController: UIViewController {
     
     @objc private func didTapView() {
         view.endEditing(true)
+    }
+    
+    @objc private func didTapFiltersButton() {
+
+        AnalyticsService.shared.report(
+            event: .click(item: .filter),
+            screen: .main
+        )
+
+        // TODO: открыть экран фильтров
+
     }
 
     // MARK: - Logic
@@ -427,6 +469,11 @@ final class TrackersViewController: UIViewController {
 
     func toggleTrackerCompletion(id: UUID) {
         guard !isSelectedDateInFuture else { return }
+        
+        AnalyticsService.shared.report(
+            event: .click(item: .track),
+            screen: .main
+        )
 
         let record = TrackerRecord(
             trackerId: id,
