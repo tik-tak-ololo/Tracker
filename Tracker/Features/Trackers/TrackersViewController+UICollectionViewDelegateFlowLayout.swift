@@ -55,13 +55,13 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
             let deleteAction = UIAction(
                 title: "Удалить",
                 attributes: .destructive
-            ) { _ in
+            ) { [weak self] _ in
                 AnalyticsService.shared.report(
                     event: .click(item: .delete),
                     screen: .main
                 )
 
-                // self?.deleteTracker(at: indexPath)
+                self?.confirmDeleteTracker(at: indexPath)
             }
 
             return UIMenu(children: [editAction, deleteAction])

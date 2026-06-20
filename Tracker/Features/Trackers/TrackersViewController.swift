@@ -511,12 +511,50 @@ final class TrackersViewController: UIViewController {
             assertionFailure("Failed to add tracker: \(error)")
         }
     }
+    
     func updateTracker(_ tracker: Tracker, toCategoryWithTitle title: String) {
         do {
             try trackerStore.updateTracker(tracker, to: title)
         } catch {
             assertionFailure("Failed to add tracker: \(error)")
         }
+    }
+
+    func deleteTracker(id: UUID) {
+        do {
+            try trackerStore.deleteTracker(id: id)
+            reloadVisibleTrackers()
+        } catch {
+            assertionFailure("Failed to delete tracker: \(error)")
+        }
+    }
+    
+    func confirmDeleteTracker(at indexPath: IndexPath) {
+        let category = visibleCategories[indexPath.section]
+        let tracker = category.trackers[indexPath.item]
+
+        let alert = UIAlertController(
+            title: nil,
+            message: "Уверены что хотите удалить трекер?",
+            preferredStyle: .actionSheet
+        )
+
+        let deleteAction = UIAlertAction(
+            title: "Удалить",
+            style: .destructive
+        ) { [weak self] _ in
+            self?.deleteTracker(id: tracker.id)
+        }
+
+        let cancelAction = UIAlertAction(
+            title: "Отменить",
+            style: .cancel
+        )
+
+        alert.addAction(deleteAction)
+        alert.addAction(cancelAction)
+
+        present(alert, animated: true)
     }
 
     private func dayOfWeek(from date: Date) -> DayOfWeek {
