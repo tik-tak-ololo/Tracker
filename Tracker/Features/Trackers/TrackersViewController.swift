@@ -511,6 +511,13 @@ final class TrackersViewController: UIViewController {
             assertionFailure("Failed to add tracker: \(error)")
         }
     }
+    func updateTracker(_ tracker: Tracker, toCategoryWithTitle title: String) {
+        do {
+            try trackerStore.updateTracker(tracker, to: title)
+        } catch {
+            assertionFailure("Failed to add tracker: \(error)")
+        }
+    }
 
     private func dayOfWeek(from date: Date) -> DayOfWeek {
         let dayOfWeekNumber = Calendar.current.component(.weekday, from: date)
@@ -531,6 +538,26 @@ final class TrackersViewController: UIViewController {
         default:
             return .saturday
         }
+    }
+    
+    func editTracker(at indexPath: IndexPath) {
+        let category = visibleCategories[indexPath.section]
+        let tracker = category.trackers[indexPath.item]
+
+        let editVC = NewHabitViewController(
+            mode: .edit(
+                tracker: tracker,
+                categoryTitle: category.title,
+                completedDays: completedDaysCount(for: tracker.id)
+            )
+        )
+
+        editVC.delegate = self
+
+        let navigationController = UINavigationController(rootViewController: editVC)
+        navigationController.modalPresentationStyle = .pageSheet
+
+        present(navigationController, animated: true)
     }
 }
 

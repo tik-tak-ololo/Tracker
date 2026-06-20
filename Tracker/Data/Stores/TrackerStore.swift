@@ -63,6 +63,39 @@ final class TrackerStore: NSObject {
 
         try save()
     }
+    
+    func updateTracker(
+        _ tracker: Tracker,
+        to categoryTitle: String
+    ) throws {
+        let request = NSFetchRequest<NSManagedObject>(
+            entityName: "TrackerCoreData"
+        )
+
+        request.predicate = NSPredicate(
+            format: "id == %@",
+            tracker.id as CVarArg
+        )
+
+        request.fetchLimit = 1
+
+        guard let trackerObject = try context.fetch(request).first else {
+            throw StoreError.objectNotFound
+        }
+
+        TrackerCoreDataMapper.update(trackerObject, with: tracker)
+
+        let categoryObject = try fetchOrCreateCategory(
+            title: categoryTitle
+        )
+
+        trackerObject.setValue(
+            categoryObject,
+            forKey: "category"
+        )
+
+        try save()
+    }
 
     func deleteTracker(id: UUID) throws {
         let request = NSFetchRequest<NSManagedObject>(entityName: "TrackerCoreData")

@@ -43,13 +43,13 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
             identifier: nil,
             previewProvider: nil
         ) { _ in
-            let editAction = UIAction(title: "Редактировать") { _ in
+            let editAction = UIAction(title: "Редактировать") { [weak self] _ in
                 AnalyticsService.shared.report(
                     event: .click(item: .edit),
                     screen: .main
                 )
 
-                // self?.editTracker(at: indexPath)
+                self?.editTracker(at: indexPath)
             }
 
             let deleteAction = UIAction(

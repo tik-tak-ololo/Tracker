@@ -21,4 +21,14 @@ extension TrackersViewController: NewHabitViewControllerDelegate {
         addTracker(tracker, toCategoryWithTitle: categoryTitle)
         reloadVisibleTrackers()
     }
+    
+    func newHabitViewController(
+        _ controller: NewHabitViewController,
+        didUpdateTracker tracker: Tracker,
+        oldTrackerId: UUID,
+        categoryTitle: String
+    ) {
+        updateTracker(tracker, toCategoryWithTitle: categoryTitle)
+        reloadVisibleTrackers()
+    }
 }
