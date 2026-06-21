@@ -32,6 +32,13 @@ final class TrackersViewController: UIViewController {
             reloadVisibleTrackers()
         }
     }
+    
+    private var selectedFilter: TrackerFilter = .all {
+        didSet {
+            reloadVisibleTrackers()
+            updateFiltersButtonAppearance()
+        }
+    }
 
     private var searchText = "" {
         didSet {
@@ -360,6 +367,10 @@ final class TrackersViewController: UIViewController {
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
             withReuseIdentifier: TrackerSectionHeaderView.reuseIdentifier
         )
+        
+        collectionView.alwaysBounceVertical = true
+        collectionView.contentInset.bottom = 82
+        collectionView.verticalScrollIndicatorInsets.bottom = 82
     }
 
     private func setupActions() {
@@ -428,14 +439,21 @@ final class TrackersViewController: UIViewController {
     }
     
     @objc private func didTapFiltersButton() {
-
         AnalyticsService.shared.report(
             event: .click(item: .filter),
             screen: .main
         )
 
-        // TODO: открыть экран фильтров
+        let filtersVC = FiltersViewController(selectedFilter: selectedFilter)
 
+        filtersVC.onFilterSelected = { [weak self] filter in
+            self?.applyFilter(filter)
+        }
+
+        let navigationController = UINavigationController(rootViewController: filtersVC)
+        navigationController.modalPresentationStyle = .pageSheet
+
+        present(navigationController, animated: true)
     }
 
     // MARK: - Logic
@@ -443,15 +461,10 @@ final class TrackersViewController: UIViewController {
     func reloadVisibleTrackers() {
         let selectedDayOfWeek = dayOfWeek(from: selectedDate)
 
-        visibleCategories = categories
+        let categoriesForSelectedDate = categories
             .map { category in
                 let trackers = category.trackers.filter { tracker in
-                    let matchesDate = tracker.schedule.contains(selectedDayOfWeek)
-
-                    let matchesSearch = searchText.isEmpty ||
-                    tracker.name.localizedCaseInsensitiveContains(searchText)
-
-                    return matchesDate && matchesSearch
+                    tracker.schedule.contains(selectedDayOfWeek)
                 }
 
                 return TrackerCategory(
@@ -461,8 +474,52 @@ final class TrackersViewController: UIViewController {
             }
             .filter { !$0.trackers.isEmpty }
 
+        let hasTrackersForSelectedDate = !categoriesForSelectedDate.isEmpty
+
+        visibleCategories = categoriesForSelectedDate
+            .map { category in
+                let trackers = category.trackers.filter { tracker in
+                    let matchesSearch = searchText.isEmpty ||
+                        tracker.name.localizedCaseInsensitiveContains(searchText)
+
+                    let matchesFilter: Bool
+
+                    switch selectedFilter {
+                    case .all, .today:
+                        matchesFilter = true
+
+                    case .completed:
+                        matchesFilter = isTrackerCompleted(
+                            id: tracker.id,
+                            on: selectedDate
+                        )
+
+                    case .uncompleted:
+                        matchesFilter = !isTrackerCompleted(
+                            id: tracker.id,
+                            on: selectedDate
+                        )
+                    }
+
+                    return matchesSearch && matchesFilter
+                }
+
+                return TrackerCategory(
+                    title: category.title,
+                    trackers: trackers
+                )
+            }
+            .filter { !$0.trackers.isEmpty }
+
+        if visibleCategories.isEmpty {
+            placeholderLabel.text = hasTrackersForSelectedDate
+                ? "Ничего не найдено"
+                : "Что будем отслеживать?"
+        }
+
         placeholderView.isHidden = !visibleCategories.isEmpty
         collectionView.isHidden = visibleCategories.isEmpty
+        filtersButton.isHidden = !hasTrackersForSelectedDate
 
         collectionView.reloadData()
     }
@@ -597,6 +654,33 @@ final class TrackersViewController: UIViewController {
 
         present(navigationController, animated: true)
     }
+    
+    private func applyFilter(_ filter: TrackerFilter) {
+        switch filter {
+        case .all:
+            selectedFilter = .all
+
+        case .today:
+            selectedDate = Date()
+            datePicker.date = Date()
+            selectedFilter = .all
+
+        case .completed:
+            selectedFilter = .completed
+
+        case .uncompleted:
+            selectedFilter = .uncompleted
+        }
+    }
+
+    private func updateFiltersButtonAppearance() {
+        let isActive = selectedFilter.isActiveFilter
+
+        filtersButton.setTitleColor(
+            isActive ? .systemRed : .white,
+            for: .normal
+        )
+    }
 }
 
 extension TrackersViewController: TrackerStoreDelegate {
@@ -614,6 +698,6 @@ extension TrackersViewController: TrackerCategoryStoreDelegate {
 extension TrackersViewController: TrackerRecordStoreDelegate {
     func trackerRecordStoreDidUpdate(_ store: TrackerRecordStore) {
         completedTrackers = Array(store.records)
-        collectionView.reloadData()
+        reloadVisibleTrackers()
     }
 }
