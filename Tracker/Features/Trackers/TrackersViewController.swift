@@ -60,7 +60,6 @@ final class TrackersViewController: UIViewController {
         let picker = UIDatePicker()
         picker.datePickerMode = .date
         picker.preferredDatePickerStyle = .compact
-        picker.locale = Locale(identifier: "ru_RU")
         picker.calendar = .current
         picker.translatesAutoresizingMaskIntoConstraints = false
         return picker
@@ -161,7 +160,6 @@ final class TrackersViewController: UIViewController {
     
     private let filtersButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Фильтры", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 17, weight: .regular)
         button.backgroundColor = UIColor(red: 55/255, green: 114/255, blue: 231/255, alpha: 1)
@@ -285,18 +283,17 @@ final class TrackersViewController: UIViewController {
     }
     
     private func setupContent() {
-        
-        // titleLabel
         titleLabel.attributedText = NSAttributedString(
-            string: "Трекеры",
+            string: String(localized: "trackers.title"),
             attributes: titleAttributes
         )
-        
-        // searchTextField
+
         searchTextField.attributedPlaceholder = NSAttributedString(
-            string: "Поиск",
+            string: String(localized: "trackers.search.placeholder"),
             attributes: searchTextFieldAttributes
         )
+        
+        filtersButton.setTitle(NSLocalizedString("filters.button", comment: ""), for: .normal)
     }
 
     private func setupConstraints() {
