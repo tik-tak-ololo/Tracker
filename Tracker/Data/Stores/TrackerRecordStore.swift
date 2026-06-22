@@ -11,7 +11,7 @@ protocol TrackerRecordStoreDelegate: AnyObject {
     func trackerRecordStoreDidUpdate(_ store: TrackerRecordStore)
 }
 
-final class TrackerRecordStore: NSObject {
+final class TrackerRecordStore: NSObject, TrackerRecordStoreProtocol {
 
     weak var delegate: TrackerRecordStoreDelegate?
 

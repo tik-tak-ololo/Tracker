@@ -11,9 +11,9 @@ final class TrackersViewController: UIViewController {
     
     // MARK: - Stores
     
-    private let trackerStore: TrackerStore
-    private let trackerCategoryStore: TrackerCategoryStore
-    private let trackerRecordStore: TrackerRecordStore
+    private let trackerStore: TrackerStoreProtocol
+    private let trackerCategoryStore: TrackerCategoryStoreProtocol
+    private let trackerRecordStore: TrackerRecordStoreProtocol
 
     // MARK: - Data
 
@@ -184,9 +184,9 @@ final class TrackersViewController: UIViewController {
     }
     
     init(
-        trackerStore: TrackerStore,
-        trackerCategoryStore: TrackerCategoryStore,
-        trackerRecordStore: TrackerRecordStore
+        trackerStore: TrackerStoreProtocol,
+        trackerCategoryStore: TrackerCategoryStoreProtocol,
+        trackerRecordStore: TrackerRecordStoreProtocol
     ) {
         self.trackerStore = trackerStore
         self.trackerCategoryStore = trackerCategoryStore

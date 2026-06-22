@@ -12,8 +12,32 @@ import SnapshotTesting
 final class TrackerTests: XCTestCase {
 
     func testViewController() {
-        let vc =  TrackersViewController()
-        assertSnapshot(of: vc, as: .image)
-    }
 
+        let trackerStore = MockTrackerStore()
+
+        let categoryStore = MockTrackerCategoryStore(
+            categories: [
+                TrackerCategory(
+                    title: "Важное",
+                    trackers: [
+                        TrackerTestData.tracker1,
+                        TrackerTestData.tracker2
+                    ]
+                )
+            ]
+        )
+
+        let recordStore = MockTrackerRecordStore()
+
+        let vc = TrackersViewController(
+            trackerStore: trackerStore,
+            trackerCategoryStore: categoryStore,
+            trackerRecordStore: recordStore
+        )
+
+        assertSnapshot(
+            of: vc,
+            as: .image
+        )
+    }
 }
