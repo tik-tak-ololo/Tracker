@@ -53,7 +53,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
             : UIImage(resource: .compleatButtonPlusIOS)
         
         completeButton.setImage(image, for: .normal)
-        completeButton.backgroundColor = .backgroundColorСompleteButtonIOS
+        completeButton.backgroundColor = .backgroundColorTrackerСompleteButtonIOS
         completeButton.tintColor = tracker.color
     }
 

@@ -67,16 +67,31 @@ final class TrackerRecordStore: NSObject {
             return
         }
 
-        let object = NSEntityDescription.insertNewObject(
+        let trackerRequest = NSFetchRequest<NSManagedObject>(
+            entityName: "TrackerCoreData"
+        )
+        trackerRequest.predicate = NSPredicate(
+            format: "id == %@",
+            record.trackerId as CVarArg
+        )
+        trackerRequest.fetchLimit = 1
+
+        guard let trackerObject = try context.fetch(trackerRequest).first else {
+            throw StoreError.objectNotFound
+        }
+
+        let recordObject = NSEntityDescription.insertNewObject(
             forEntityName: "TrackerRecordCoreData",
             into: context
         )
 
         TrackerRecordCoreDataMapper.update(
-            object,
+            recordObject,
             with: record,
             calendar: calendar
         )
+
+        recordObject.setValue(trackerObject, forKey: "tracker")
 
         try save()
     }

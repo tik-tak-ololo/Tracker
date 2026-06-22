@@ -89,11 +89,13 @@ final class NewHabitViewController: UIViewController {
         button.setTitle("Создать", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        button.backgroundColor = .grayIOS
+        button.backgroundColor = .backgroundColorButtonIsNotReadyToBeTappedIOS
         button.layer.cornerRadius = 16
         button.isEnabled = false
         button.addTarget(self, action: #selector(createButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitleColor(.textColorButtonIsReadyToBeTappedIOS, for: .normal)
+        button.setTitleColor(.textColorButtonIsNotReadyToBeTappedIOS, for: .disabled)
         return button
     }()
     
@@ -159,7 +161,7 @@ final class NewHabitViewController: UIViewController {
                 ofSize: 16,
                 weight: .medium
             ),
-            .foregroundColor: UIColor.blackDayIOS
+            .foregroundColor: UIColor.textColorIOS
         ]
     }
     
@@ -481,6 +483,8 @@ final class NewHabitViewController: UIViewController {
         let hasTitle = !(titleTextField.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
 
         createButton.isEnabled = hasTitle
+        createButton.backgroundColor = hasTitle ? .backgroundColorButtonIsReadyToBeTappedIOS : .backgroundColorButtonIsNotReadyToBeTappedIOS
+        
     }
 
     @objc private func cancelButtonTapped() {

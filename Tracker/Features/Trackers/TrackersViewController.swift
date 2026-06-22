@@ -11,9 +11,9 @@ final class TrackersViewController: UIViewController {
     
     // MARK: - Stores
     
-    private let trackerStore = TrackerStore()
-    private let trackerCategoryStore = TrackerCategoryStore()
-    private let trackerRecordStore = TrackerRecordStore()
+    private let trackerStore: TrackerStore
+    private let trackerCategoryStore: TrackerCategoryStore
+    private let trackerRecordStore: TrackerRecordStore
 
     // MARK: - Data
 
@@ -181,6 +181,22 @@ final class TrackersViewController: UIViewController {
         let today = calendar.startOfDay(for: Date())
         let selectedDay = calendar.startOfDay(for: selectedDate)
         return selectedDay > today
+    }
+    
+    init(
+        trackerStore: TrackerStore,
+        trackerCategoryStore: TrackerCategoryStore,
+        trackerRecordStore: TrackerRecordStore
+    ) {
+        self.trackerStore = trackerStore
+        self.trackerCategoryStore = trackerCategoryStore
+        self.trackerRecordStore = trackerRecordStore
+        
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
     // MARK: - Lifecycle
