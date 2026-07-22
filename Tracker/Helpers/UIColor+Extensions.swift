@@ -24,16 +24,20 @@ extension UIColor {
     }
 
     var hexString: String {
-        guard let components = cgColor.components else {
+        let color = resolvedColor(with: UITraitCollection.current)
+
+        guard let components = color.cgColor.converted(
+            to: CGColorSpace(name: CGColorSpace.sRGB)!,
+            intent: .defaultIntent,
+            options: nil
+        )?.components else {
             return "#000000"
         }
 
-        let red = Int((components[safe: 0] ?? 0) * 255)
-        let green = Int((components[safe: 1] ?? 0) * 255)
-        let blue = Int((components[safe: 2] ?? 0) * 255)
+        let red = Int(round(components[0] * 255))
+        let green = Int(round(components[1] * 255))
+        let blue = Int(round(components[2] * 255))
 
         return String(format: "#%02X%02X%02X", red, green, blue)
     }
 }
-
-

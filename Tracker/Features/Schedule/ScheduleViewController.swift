@@ -18,9 +18,9 @@ final class ScheduleViewController: UIViewController {
     private lazy var doneButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Готово", for: .normal)
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.textColorButtonIsReadyToBeTappedIOS, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        button.backgroundColor = UIColor(resource: .blackDayIOS)
+        button.backgroundColor = .backgroundColorButtonIsReadyToBeTappedIOS
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false

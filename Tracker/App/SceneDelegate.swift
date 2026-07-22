@@ -23,9 +23,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let hasSeenOnboarding = UserDefaultsService.shared.hasSeenOnboarding
 
         if hasSeenOnboarding {
-            window.rootViewController = UINavigationController(
-                rootViewController: TrackersViewController()
-            )
+            window.rootViewController = TabBarController()
         } else {
             window.rootViewController = OnboardingViewController()
         }

@@ -22,10 +22,11 @@ final class CategoryViewController: UIViewController {
         button.setTitle("Добавить категорию", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        button.backgroundColor = .blackDayIOS
+        button.backgroundColor = .backgroundColorButtonIsReadyToBeTappedIOS
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(addCategoryButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitleColor(.textColorButtonIsReadyToBeTappedIOS, for: .normal)
         return button
     }()
 

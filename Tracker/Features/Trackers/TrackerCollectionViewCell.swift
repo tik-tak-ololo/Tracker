@@ -45,14 +45,15 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         cardView.layer.borderColor = UIColor(resource: .cardBorderColorIOS).cgColor
         emojiLabel.text = tracker.emoji
         titleLabel.text = tracker.name
-        daysLabel.text = "\(completedDays) дней"
+        let format = String(localized: "tracker.days")
+        daysLabel.text = String.localizedStringWithFormat(format, completedDays)
 
         let image = isCompleted
             ? UIImage(resource: .compleatButtonCheckmarkIOS)
             : UIImage(resource: .compleatButtonPlusIOS)
         
         completeButton.setImage(image, for: .normal)
-        completeButton.backgroundColor = .whiteIOS
+        completeButton.backgroundColor = .backgroundColorTrackerСompleteButtonIOS
         completeButton.tintColor = tracker.color
     }
 

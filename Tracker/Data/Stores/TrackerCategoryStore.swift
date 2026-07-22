@@ -12,7 +12,7 @@ protocol TrackerCategoryStoreDelegate: AnyObject {
     func trackerCategoryStoreDidUpdate(_ store: TrackerCategoryStore)
 }
 
-final class TrackerCategoryStore: NSObject {
+final class TrackerCategoryStore: NSObject, TrackerCategoryStoreProtocol {
 
     weak var delegate: TrackerCategoryStoreDelegate?
 

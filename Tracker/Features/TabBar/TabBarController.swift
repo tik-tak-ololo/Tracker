@@ -9,6 +9,10 @@ import UIKit
  
 final class TabBarController: UITabBarController {
     
+    private let trackerStore = TrackerStore()
+    private let trackerCategoryStore = TrackerCategoryStore()
+    private let trackerRecordStore = TrackerRecordStore()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTabs()
@@ -16,21 +20,42 @@ final class TabBarController: UITabBarController {
 
     private func setupTabs() {
 
-        let trackersViewController = TrackersViewController()
+        let trackersViewController = TrackersViewController(
+            trackerStore: trackerStore,
+            trackerCategoryStore: trackerCategoryStore,
+            trackerRecordStore: trackerRecordStore
+        )
         let trackersNavigationController = UINavigationController(
             rootViewController: trackersViewController
         )
+        
+        let trackersTabTitle = NSLocalizedString(
+            "trackers.tab",
+            comment: ""
+        )
+
+        let statisticsTabTitle = NSLocalizedString(
+            "statistics.tab",
+            comment: ""
+        )
 
         trackersNavigationController.tabBarItem = UITabBarItem(
-            title: "Трекеры",
+            title: trackersTabTitle,
             image: UIImage(systemName: "record.circle.fill"),
             selectedImage: nil
         )
         
-        let statisticsViewController = StatisticsViewController()
-        
+        let statisticsService = StatisticsService(
+            trackerStore: trackerStore,
+            recordStore: trackerRecordStore
+        )
+
+        let statisticsViewController = StatisticsViewController(
+            statisticsService: statisticsService
+        )
+
         statisticsViewController.tabBarItem = UITabBarItem(
-            title: "Статистика",
+            title: statisticsTabTitle,
             image: UIImage(resource: .statisticsTabBar),
             selectedImage: nil
         )

@@ -12,6 +12,9 @@ final class NewHabitViewController: UIViewController {
     // MARK: - Data
 
     weak var delegate: NewHabitViewControllerDelegate?
+    
+    private let mode: HabitScreenMode
+    private var editingTrackerId: UUID?
 
     var selectedCategoryTitle: String? = ""
     var selectedSchedule: Set<DayOfWeek> = []
@@ -86,11 +89,13 @@ final class NewHabitViewController: UIViewController {
         button.setTitle("Создать", for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        button.backgroundColor = .grayIOS
+        button.backgroundColor = .backgroundColorButtonIsNotReadyToBeTappedIOS
         button.layer.cornerRadius = 16
         button.isEnabled = false
         button.addTarget(self, action: #selector(createButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitleColor(.textColorButtonIsReadyToBeTappedIOS, for: .normal)
+        button.setTitleColor(.textColorButtonIsNotReadyToBeTappedIOS, for: .disabled)
         return button
     }()
     
@@ -107,10 +112,32 @@ final class NewHabitViewController: UIViewController {
         return label
     }()
     
+    private let completedDaysLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 32, weight: .bold)
+        label.textAlignment = .center
+        label.isHidden = true
+        label.translatesAutoresizingMaskIntoConstraints = false
+
+        return label
+    }()
+    
+    private var titleTopToSafeAreaConstraint: NSLayoutConstraint?
+    private var titleTopToDaysLabelConstraint: NSLayoutConstraint?
+    
     private lazy var optionsTableTopConstraint = optionsTableView.topAnchor.constraint(
         equalTo: titleTextField.bottomAnchor,
         constant: 24
     )
+    
+    init(mode: HabitScreenMode = .create) {
+        self.mode = mode
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     // MARK: - Lifecycle
 
@@ -134,7 +161,7 @@ final class NewHabitViewController: UIViewController {
                 ofSize: 16,
                 weight: .medium
             ),
-            .foregroundColor: UIColor.blackDayIOS
+            .foregroundColor: UIColor.textColorIOS
         ]
     }
     
@@ -172,24 +199,113 @@ final class NewHabitViewController: UIViewController {
     }
     
     private func setupContent() {
-        title = "Новая привычка"
-        selectedEmoji = emojis[0]
-        selectedColor = colors[0]
+        switch mode {
+        case .create:
+            title = "Новая привычка"
+            createButton.setTitle("Создать", for: .normal)
+
+            configureTitlePositionForCreateMode()
+
+            selectedEmoji = emojis[0]
+            selectedColor = colors[0]
+            
+            selectCurrentEmojiAndColor()
+
+        case let .edit(tracker, categoryTitle, completedDays):
+            title = "Редактирование привычки"
+            createButton.setTitle("Сохранить", for: .normal)
+
+            editingTrackerId = tracker.id
+            titleTextField.text = tracker.name
+            selectedCategoryTitle = categoryTitle
+            selectedSchedule = tracker.schedule
+            selectedEmoji = tracker.emoji
+            selectedColor = tracker.color
+            
+            selectCurrentEmojiAndColor()
+
+            configureTitlePositionForEditMode(completedDays: completedDays)
+
+            createButton.isEnabled = true
+        }
+        
+        emojiCollectionView.reloadData()
+        colorCollectionView.reloadData()
+        selectCurrentEmojiAndColor()
+    }
+    
+    private func configureTitlePositionForCreateMode() {
+        completedDaysLabel.isHidden = true
+
+        titleTopToDaysLabelConstraint?.isActive = false
+        titleTopToSafeAreaConstraint?.isActive = true
+    }
+
+    private func configureTitlePositionForEditMode(completedDays: Int) {
+        completedDaysLabel.text = "\(completedDays) \(daysWord(completedDays))"
+        completedDaysLabel.isHidden = false
+
+        titleTopToSafeAreaConstraint?.isActive = false
+        titleTopToDaysLabelConstraint?.isActive = true
     }
 
     private func setupTextField() {
+        contentView.addSubview(completedDaysLabel)
         contentView.addSubview(titleTextField)
         contentView.addSubview(titleLimitLabel)
 
+        let titleTopToSafeAreaConstraint = titleTextField.topAnchor.constraint(
+            equalTo: contentView.safeAreaLayoutGuide.topAnchor,
+            constant: 24
+        )
+
+        let titleTopToDaysLabelConstraint = titleTextField.topAnchor.constraint(
+            equalTo: completedDaysLabel.bottomAnchor,
+            constant: 40
+        )
+
+        self.titleTopToSafeAreaConstraint = titleTopToSafeAreaConstraint
+        self.titleTopToDaysLabelConstraint = titleTopToDaysLabelConstraint
+
         NSLayoutConstraint.activate([
-            titleTextField.topAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.topAnchor, constant: 24),
-            titleTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            titleTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            completedDaysLabel.topAnchor.constraint(
+                equalTo: contentView.safeAreaLayoutGuide.topAnchor,
+                constant: 24
+            ),
+            completedDaysLabel.leadingAnchor.constraint(
+                equalTo: contentView.leadingAnchor,
+                constant: 16
+            ),
+            completedDaysLabel.trailingAnchor.constraint(
+                equalTo: contentView.trailingAnchor,
+                constant: -16
+            ),
+            completedDaysLabel.heightAnchor.constraint(equalToConstant: 38),
+
+            titleTopToSafeAreaConstraint,
+
+            titleTextField.leadingAnchor.constraint(
+                equalTo: contentView.leadingAnchor,
+                constant: 16
+            ),
+            titleTextField.trailingAnchor.constraint(
+                equalTo: contentView.trailingAnchor,
+                constant: -16
+            ),
             titleTextField.heightAnchor.constraint(equalToConstant: 75),
 
-            titleLimitLabel.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 8),
-            titleLimitLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            titleLimitLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            titleLimitLabel.topAnchor.constraint(
+                equalTo: titleTextField.bottomAnchor,
+                constant: 8
+            ),
+            titleLimitLabel.leadingAnchor.constraint(
+                equalTo: contentView.leadingAnchor,
+                constant: 16
+            ),
+            titleLimitLabel.trailingAnchor.constraint(
+                equalTo: contentView.trailingAnchor,
+                constant: -16
+            ),
             titleLimitLabel.heightAnchor.constraint(equalToConstant: 22)
         ])
     }
@@ -275,9 +391,6 @@ final class NewHabitViewController: UIViewController {
             // это задаёт высоту contentView для scrollView
             colorCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24)
         ])
-
-        emojiCollectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: false, scrollPosition: [])
-        colorCollectionView.selectItem(at: IndexPath(item: 0, section: 0), animated: false, scrollPosition: [])
     }
     
     private func updateTitleLimitState(isExceeded: Bool) {
@@ -286,6 +399,30 @@ final class NewHabitViewController: UIViewController {
 
         UIView.animate(withDuration: 0.2) {
             self.view.layoutIfNeeded()
+        }
+    }
+    
+    private func selectCurrentEmojiAndColor() {
+        if let emojiIndex = emojis.firstIndex(of: selectedEmoji) {
+            emojiCollectionView.selectItem(
+                at: IndexPath(item: emojiIndex, section: 0),
+                animated: false,
+                scrollPosition: []
+            )
+        }
+
+        let selectedHex = selectedColor.resolvedColor(
+            with: traitCollection
+        ).hexString
+
+        if let colorIndex = colors.firstIndex(where: {
+            $0.resolvedColor(with: traitCollection).hexString == selectedHex
+        }) {
+            colorCollectionView.selectItem(
+                at: IndexPath(item: colorIndex, section: 0),
+                animated: false,
+                scrollPosition: []
+            )
         }
     }
 
@@ -319,6 +456,24 @@ final class NewHabitViewController: UIViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
     }
+    
+    private func daysWord(_ count: Int) -> String {
+        let lastTwo = count % 100
+        let last = count % 10
+
+        if lastTwo >= 11 && lastTwo <= 14 {
+            return "дней"
+        }
+
+        switch last {
+        case 1:
+            return "день"
+        case 2...4:
+            return "дня"
+        default:
+            return "дней"
+        }
+    }
 
     @objc private func textFieldChanged() {
         updateCreateButtonState()
@@ -328,9 +483,8 @@ final class NewHabitViewController: UIViewController {
         let hasTitle = !(titleTextField.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
 
         createButton.isEnabled = hasTitle
-        createButton.backgroundColor = hasTitle
-            ? .blackDayIOS
-            : .grayIOS
+        createButton.backgroundColor = hasTitle ? .backgroundColorButtonIsReadyToBeTappedIOS : .backgroundColorButtonIsNotReadyToBeTappedIOS
+        
     }
 
     @objc private func cancelButtonTapped() {
@@ -343,19 +497,40 @@ final class NewHabitViewController: UIViewController {
               !title.isEmpty
         else { return }
 
-        let tracker = Tracker(
-            id: UUID(),
-            name: title,
-            color: selectedColor,
-            emoji: selectedEmoji,
-            schedule: selectedSchedule
-        )
+        switch mode {
+        case .create:
+            let tracker = Tracker(
+                id: UUID(),
+                name: title,
+                color: selectedColor,
+                emoji: selectedEmoji,
+                schedule: selectedSchedule
+            )
 
-        delegate?.newHabitViewController(
-            self,
-            didCreateTracker: tracker,
-            categoryTitle: selectedCategoryTitle ?? ""
-        )
+            delegate?.newHabitViewController(
+                self,
+                didCreateTracker: tracker,
+                categoryTitle: selectedCategoryTitle ?? ""
+            )
+
+        case .edit:
+            guard let oldTrackerId = editingTrackerId else { return }
+
+            let tracker = Tracker(
+                id: oldTrackerId,
+                name: title,
+                color: selectedColor,
+                emoji: selectedEmoji,
+                schedule: selectedSchedule
+            )
+
+            delegate?.newHabitViewController(
+                self,
+                didUpdateTracker: tracker,
+                oldTrackerId: oldTrackerId,
+                categoryTitle: selectedCategoryTitle ?? ""
+            )
+        }
 
         dismiss(animated: true)
     }

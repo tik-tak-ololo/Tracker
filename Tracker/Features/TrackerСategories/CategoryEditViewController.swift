@@ -51,13 +51,14 @@ final class CategoryEditViewController: UIViewController {
     private lazy var doneButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle(mode.buttonTitle, for: .normal)
-        button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        button.backgroundColor = .grayIOS
+        button.backgroundColor = .backgroundColorButtonIsNotReadyToBeTappedIOS
         button.layer.cornerRadius = 16
         button.isEnabled = false
         button.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitleColor(.textColorButtonIsReadyToBeTappedIOS, for: .normal)
+        button.setTitleColor(.textColorButtonIsNotReadyToBeTappedIOS, for: .disabled)
         return button
     }()
 
@@ -133,7 +134,7 @@ final class CategoryEditViewController: UIViewController {
             .isEmpty
 
         doneButton.isEnabled = hasText
-        doneButton.backgroundColor = hasText ? .blackDayIOS : .grayIOS
+        doneButton.backgroundColor = hasText ? .backgroundColorButtonIsReadyToBeTappedIOS : .backgroundColorButtonIsNotReadyToBeTappedIOS
     }
 
     @objc private func doneButtonTapped() {
